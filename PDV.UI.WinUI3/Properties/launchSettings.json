@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PDV.UI.WinUI3 (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "PDV.UI.WinUI3 (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
