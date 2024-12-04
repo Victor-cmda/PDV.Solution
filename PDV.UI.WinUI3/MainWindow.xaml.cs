@@ -1,17 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using PDV.UI.WinUI3.Views;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -23,14 +13,88 @@ namespace PDV.UI.WinUI3
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        private Frame _navigationFrame;
         public MainWindow()
         {
             this.InitializeComponent();
+
+            if (contentFrame == null)
+            {
+                contentFrame = new Frame();
+            }
+
+            try
+            {
+                contentFrame.Navigate(typeof(HomePage));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro na navegação inicial: {ex}");
+            }
         }
 
-        private void myButton_Click(object sender, RoutedEventArgs e)
+        private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            myButton.Content = "Clicked";
+            try
+            {
+                if (contentFrame == null)
+                {
+                    contentFrame = new Frame();
+                    System.Diagnostics.Debug.WriteLine("contentFrame foi inicializado");
+                }
+
+                if (args?.SelectedItem == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("SelectedItem é nulo");
+                    return;
+                }
+
+                if (args.SelectedItem is NavigationViewItem selectedItem)
+                {
+                    string tag = selectedItem.Tag?.ToString();
+
+                    if (string.IsNullOrEmpty(tag))
+                    {
+                        System.Diagnostics.Debug.WriteLine("Tag é nula ou vazia");
+                        return;
+                    }
+
+                    Type pageType = null;
+                    switch (tag)
+                    {
+                        case "home":
+                            pageType = typeof(HomePage);
+                            break;
+                        case "products":
+                            pageType = typeof(ProductPage);
+                            break;
+                    }
+
+                    if (pageType != null)
+                    {
+                        try
+                        {
+                            contentFrame.Navigate(pageType);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Erro ao navegar para {pageType.Name}: {ex}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro na navegação: {ex}");
+            }
+        }
+
+        private void NavigationView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        {
+            if (contentFrame.CanGoBack)
+            {
+                contentFrame.GoBack();
+            }
         }
     }
 }

@@ -1,0 +1,95 @@
+<Page
+    x:Class="PDV.UI.WinUI3.Views.ProductPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:converters="using:PDV.UI.WinUI3.Converters"
+    xmlns:viewmodels="using:PDV.UI.WinUI3.ViewModels"
+    xmlns:local="using:PDV.UI.WinUI3.Helpers"
+    mc:Ignorable="d">
+
+    <Grid Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Barra de Ferramentas -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
+            <TextBox 
+                PlaceholderText="Pesquisar produtos..."
+                Width="300"
+                Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Content="Novo Produto" Click="NewProduct_Click"/>
+            <Button Content="Editar" Click="EditProduct_Click"/>
+            <Button Content="Excluir" Click="DeleteProduct_Click"/>
+        </StackPanel>
+
+        <!-- Lista de Produtos -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- DataGrid de Produtos -->
+            <controls:DataGrid
+                ItemsSource="{x:Bind ViewModel.Products, Mode=OneWay}"
+                SelectedItem="{x:Bind ViewModel.SelectedProduct, Mode=TwoWay}"
+                AutoGenerateColumns="False"
+                IsReadOnly="True"
+                GridLinesVisibility="All">
+                <controls:DataGrid.Columns>
+                    <controls:DataGridTextColumn Header="Código" Binding="{Binding Code}"/>
+                    <controls:DataGridTextColumn Header="Nome" Binding="{Binding Name}"/>
+                    <controls:DataGridTextColumn Header="Preço" Binding="{Binding Price}"/>
+                    <controls:DataGridTextColumn Header="Estoque" Binding="{Binding StockQuantity}"/>
+                    <controls:DataGridTextColumn Header="Código de Barras" Binding="{Binding BarCode}"/>
+                    <controls:DataGridCheckBoxColumn Header="Ativo" Binding="{Binding IsActive}"/>
+                </controls:DataGrid.Columns>
+            </controls:DataGrid>
+
+            <!-- Formulário de Produto -->
+            <StackPanel 
+                Grid.Column="1" 
+                Width="300" 
+                Padding="20"
+                Spacing="10"
+                Visibility="{x:Bind ViewModel.IsEditing, Mode=OneWay}">
+
+                <TextBox Header="Código" Text="{x:Bind ViewModel.SelectedProduct.Code, Mode=TwoWay}"/>
+                <TextBox Header="Nome" Text="{x:Bind ViewModel.SelectedProduct.Name, Mode=TwoWay}"/>
+                <TextBox Header="Descrição" Text="{x:Bind ViewModel.SelectedProduct.Description, Mode=TwoWay}"/>
+                <NumberBox Header="Preço" 
+                    Value="{x:Bind ViewModel.SelectedProduct.Price, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                    SpinButtonPlacementMode="Compact"
+                    SmallChange="0.1"
+                    LargeChange="1.0"
+                    NumberFormatter="{x:Bind local:NumberFormatHelper.CurrencyFormatter}"/>
+                <NumberBox Header="Custo" 
+                    Value="{x:Bind ViewModel.SelectedProduct.Cost, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                    SpinButtonPlacementMode="Compact"
+                    SmallChange="0.1"
+                    LargeChange="1.0"
+                    NumberFormatter="{x:Bind local:NumberFormatHelper.CurrencyFormatter}"/>
+                <NumberBox Header="Quantidade em Estoque" Value="{x:Bind ViewModel.SelectedProduct.StockQuantity, Mode=TwoWay}"/>
+                <TextBox Header="Código de Barras" Text="{x:Bind ViewModel.SelectedProduct.BarCode, Mode=TwoWay}"/>
+                <CheckBox Content="Ativo" IsChecked="{x:Bind ViewModel.SelectedProduct.IsActive, Mode=TwoWay}"/>
+
+                <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                    <Button Content="Cancelar" Click="CancelEdit_Click"/>
+                    <Button Content="Salvar" Click="SaveProduct_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- Loading Indicator -->
+        <ProgressRing 
+            Grid.Row="1"
+            IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+            Width="50"
+            Height="50"/>
+    </Grid>
+</Page>
