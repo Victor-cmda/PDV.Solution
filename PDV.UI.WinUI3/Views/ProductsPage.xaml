@@ -111,11 +111,11 @@
                 </ListView>
 
                 <controls:EmptyStateControl 
-                x:Name="EmptyState"
-                Visibility="{x:Bind HasNoItems, Mode=OneWay}"
-                Message="Nenhum produto encontrado"
-                Description="Tente ajustar os filtros ou adicione um novo produto"/>
-                
+                    x:Name="EmptyState"
+                    Visibility="{x:Bind HasNoItems, Mode=OneWay}"
+                    Message="Nenhum produto encontrado"
+                    Description="Tente ajustar os filtros ou adicione um novo produto"/>    
+
             </Grid>
 
             <!-- Detalhes do Produto -->

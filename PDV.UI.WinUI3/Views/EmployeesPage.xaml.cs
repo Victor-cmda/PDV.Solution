@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -24,22 +25,37 @@ namespace PDV.UI.WinUI3.Views
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class EmployeesPage : Page
+    public sealed partial class EmployeesPage : Page, INotifyPropertyChanged
     {
-        private ObservableCollection<Employee> Employees { get; set; }
-        private List<Employee> AllEmployees { get; set; }
+        private ObservableCollection<Employee> FilteredEmployees { get; set; }
+        private ObservableCollection<Employee> AllEmployees { get; set; }
+
+        public bool HasItems => FilteredEmployees?.Count > 0;
+        public bool HasNoItems => !HasItems;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public EmployeesPage()
         {
             this.InitializeComponent();
             LoadEmployees();
             FilterBox.SelectedIndex = 0; // Selecionar "Todos" por padrão
+
+            FilteredEmployees.CollectionChanged += (s, e) =>
+            {
+                NotifyPropertyChanged(nameof(HasItems));
+                NotifyPropertyChanged(nameof(HasNoItems));
+            };
         }
 
         private void LoadEmployees()
         {
             // Dados de exemplo
-            AllEmployees = new List<Employee>
+            AllEmployees = new ObservableCollection<Employee>
             {
                 new Employee
                 {
@@ -67,8 +83,8 @@ namespace PDV.UI.WinUI3.Views
                 }
             };
 
-            Employees = new ObservableCollection<Employee>(AllEmployees);
-            EmployeesList.ItemsSource = Employees;
+            FilteredEmployees = new ObservableCollection<Employee>(AllEmployees);
+            EmployeesList.ItemsSource = FilteredEmployees;
         }
 
         private void EmployeesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -217,10 +233,10 @@ namespace PDV.UI.WinUI3.Views
             }
 
             // Atualizar lista
-            Employees.Clear();
+            FilteredEmployees.Clear();
             foreach (var employee in filteredEmployees)
             {
-                Employees.Add(employee);
+                FilteredEmployees.Add(employee);
             }
 
             // Se não houver itens selecionados após o filtro, limpar os detalhes
