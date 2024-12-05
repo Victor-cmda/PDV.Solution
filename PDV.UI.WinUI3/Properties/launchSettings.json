@@ -4,7 +4,8 @@
       "commandName": "MsixPackage"
     },
     "PDV.UI.WinUI3 (Unpackaged)": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "nativeDebugging": true
     }
   }
 }

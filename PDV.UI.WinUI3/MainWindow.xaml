@@ -9,7 +9,18 @@
     mc:Ignorable="d"
     Title="PDV.UI.WinUI3">
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
-    </StackPanel>
+    <NavigationView x:Name="NavView"
+                    IsSettingsVisible="False"
+                    IsBackButtonVisible="Collapsed"
+                    PaneDisplayMode="Left"
+                    SelectionChanged="NavView_SelectionChanged">
+
+        <NavigationView.MenuItems>
+            <NavigationViewItem Icon="Home" Content="Home" Tag="home"/>
+            <NavigationViewItem Icon="People" Content="Funcionários" Tag="employees"/>
+            <NavigationViewItem Icon="Calculator" Content="Produtos" Tag="products"/>
+        </NavigationView.MenuItems>
+
+        <Frame x:Name="ContentFrame"/>
+    </NavigationView>
 </Window>

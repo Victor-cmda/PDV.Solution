@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="PDV.UI.WinUI3.Views.ProductDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Style="{StaticResource DefaultContentDialogStyle}"
+    Title="Novo Produto"
+    PrimaryButtonText="Salvar"
+    SecondaryButtonText="Cancelar"
+    DefaultButton="Primary"
+    IsPrimaryButtonEnabled="False"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <StackPanel Spacing="10">
+        <TextBox x:Name="NameBox" 
+                Header="Nome do Produto"
+                PlaceholderText="Digite o nome do produto"
+                TextChanged="ValidateInput"/>
+
+        <ComboBox x:Name="CategoryBox"
+                 Header="Categoria"
+                 PlaceholderText="Selecione uma categoria"
+                 SelectionChanged="ValidateInput"
+                 Width="200">
+            <ComboBoxItem Content="Alimentos"/>
+            <ComboBoxItem Content="Bebidas"/>
+            <ComboBoxItem Content="Limpeza"/>
+            <ComboBoxItem Content="Higiene"/>
+            <ComboBoxItem Content="Outros"/>
+        </ComboBox>
+
+        <TextBox x:Name="PriceBox"
+                Header="Preço"
+                PlaceholderText="0,00"
+                TextChanged="ValidateInput"/>
+
+        <TextBox x:Name="BarcodeBox"
+                Header="Código de Barras"
+                PlaceholderText="Digite o código de barras"
+                TextChanged="ValidateInput"/>
+
+        <TextBox x:Name="StockBox"
+                Header="Estoque"
+                PlaceholderText="0"
+                TextChanged="ValidateInput"/>
+
+        <TextBox x:Name="SupplierBox"
+                Header="Fornecedor"
+                PlaceholderText="Digite o nome do fornecedor"
+                TextChanged="ValidateInput"/>
+
+        <InfoBar x:Name="ValidationInfoBar"
+                IsOpen="False"
+                Severity="Error"/>
+    </StackPanel>
+</ContentDialog>

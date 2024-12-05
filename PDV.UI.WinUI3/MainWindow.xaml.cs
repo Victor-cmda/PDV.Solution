@@ -26,11 +26,28 @@ namespace PDV.UI.WinUI3
         public MainWindow()
         {
             this.InitializeComponent();
+            NavView.SelectedItem = NavView.MenuItems[0];
         }
 
-        private void myButton_Click(object sender, RoutedEventArgs e)
+        private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            myButton.Content = "Clicked";
+            if (args.SelectedItemContainer != null)
+            {
+                var navItemTag = args.SelectedItemContainer.Tag.ToString();
+
+                switch (navItemTag)
+                {
+                    case "home":
+                        ContentFrame.Navigate(typeof(Views.HomePage));
+                        break;
+                    case "employees":
+                        ContentFrame.Navigate(typeof(Views.EmployeesPage));
+                        break;
+                    case "products":
+                        ContentFrame.Navigate(typeof(Views.ProductsPage));
+                        break;
+                }
+            }
         }
     }
 }
