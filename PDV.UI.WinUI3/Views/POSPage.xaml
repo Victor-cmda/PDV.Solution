@@ -1,0 +1,211 @@
+<Page
+    x:Class="PDV.UI.WinUI3.Views.POSPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    mc:Ignorable="d">
+
+    <Grid Padding="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="320"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Coluna Principal - Lista de Produtos e Entrada -->
+        <Grid Grid.Column="0" RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Cabeçalho com Entrada de Código -->
+            <Grid Grid.Row="0" ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox x:Name="BarcodeInput"
+                         Grid.Column="0"
+                         PlaceholderText="Digite ou escaneie o código do produto"
+                         KeyDown="BarcodeInput_KeyDown"/>
+
+                <Button Grid.Column="1"
+                        Content="Pesquisar Produto"
+                        Style="{StaticResource AccentButtonStyle}"/>
+            </Grid>
+
+            <!-- Lista de Produtos -->
+            <controls:DataGrid x:Name="ProductsGrid"
+                               Grid.Row="1"
+                               AutoGenerateColumns="False"
+                               IsReadOnly="True"
+                               GridLinesVisibility="Horizontal"
+                               AlternatingRowBackground="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                               SelectionMode="Single"
+                               HeadersVisibility="Column">
+                <controls:DataGrid.Columns>
+                    <controls:DataGridTextColumn Header="Código" Binding="{Binding Code}" Width="100"/>
+                    <controls:DataGridTextColumn Header="Produto" Binding="{Binding Description}" Width="*"/>
+                    <controls:DataGridTextColumn Header="Qtd" Binding="{Binding Quantity}" Width="80"/>
+                    <controls:DataGridTextColumn Header="Preço Un." Binding="{Binding UnitPrice}" Width="120"/>
+                    <controls:DataGridTextColumn Header="Total" Binding="{Binding Total}" Width="120"/>
+                    <controls:DataGridTemplateColumn Width="100">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Remover"
+                                        Click="RemoveItem_Click"
+                                        Style="{ThemeResource AccentButtonStyle}"/>
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+                </controls:DataGrid.Columns>
+            </controls:DataGrid>
+
+            <!-- Totalizadores -->
+            <Grid Grid.Row="2"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="24">
+                    <StackPanel>
+                        <TextBlock Text="Itens"
+                                   Style="{ThemeResource CaptionTextBlockStyle}"
+                                   Opacity="0.8"/>
+                        <TextBlock x:Name="ItemCount"
+                                   Text="0"
+                                   Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock Text="Subtotal"
+                                   Style="{ThemeResource CaptionTextBlockStyle}"
+                                   Opacity="0.8"/>
+                        <TextBlock x:Name="Subtotal"
+                                   Text="R$ 0,00"
+                                   Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock Text="Desconto"
+                                   Style="{ThemeResource CaptionTextBlockStyle}"
+                                   Opacity="0.8"/>
+                        <TextBlock x:Name="Discount"
+                                   Text="R$ 0,00"
+                                   Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Total"
+                               Style="{ThemeResource CaptionTextBlockStyle}"
+                               Opacity="0.8"/>
+                    <TextBlock x:Name="Total"
+                               Text="R$ 0,00"
+                               Style="{ThemeResource TitleLargeTextBlockStyle}"
+                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- Painel Lateral - Ações e Informações -->
+        <Grid Grid.Column="1" Margin="12,0,0,0" RowSpacing="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Informações da Venda -->
+            <Grid Grid.Row="0"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="16">
+                <StackPanel Spacing="12">
+                    <StackPanel>
+                        <TextBlock Text="Operador"
+                                   Style="{ThemeResource CaptionTextBlockStyle}"
+                                   Opacity="0.8"/>
+                        <TextBlock x:Name="OperatorName"
+                                   Text="João Silva"
+                                   Style="{ThemeResource BodyTextBlockStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock Text="Caixa"
+                                   Style="{ThemeResource CaptionTextBlockStyle}"
+                                   Opacity="0.8"/>
+                        <TextBlock x:Name="POSNumber"
+                                   Text="Caixa 01"
+                                   Style="{ThemeResource BodyTextBlockStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock Text="Data/Hora"
+                                   Style="{ThemeResource CaptionTextBlockStyle}"
+                                   Opacity="0.8"/>
+                        <TextBlock x:Name="CurrentDateTime"
+                                   Text="05/12/2024 15:30"
+                                   Style="{ThemeResource BodyTextBlockStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- Atalhos e Ações -->
+            <Grid Grid.Row="1"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Ações"
+                               Style="{ThemeResource SubtitleTextBlockStyle}"
+                               Margin="0,0,0,8"/>
+
+                    <Button Content="Pesquisar Produto (F2)"
+                            Style="{ThemeResource AccentButtonStyle}"
+                            HorizontalAlignment="Stretch"/>
+
+                    <Button Content="Aplicar Desconto (F3)"
+                            HorizontalAlignment="Stretch"/>
+
+                    <Button Content="Cancelar Item (F4)"
+                            HorizontalAlignment="Stretch"/>
+
+                    <Button Content="Cancelar Venda (F5)"
+                            HorizontalAlignment="Stretch"/>
+
+                    <Button Content="Consultar Preço (F6)"
+                            HorizontalAlignment="Stretch"/>
+
+                    <Button Content="Sangria/Suprimento (F7)"
+                            HorizontalAlignment="Stretch"/>
+
+                    <Button Content="Fechar Caixa (F8)"
+                            HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Botão de Finalizar -->
+            <Button Grid.Row="2"
+                    Content="FINALIZAR VENDA (F12)"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    Height="64"
+                    FontSize="16"
+                    HorizontalAlignment="Stretch"/>
+        </Grid>
+    </Grid>
+</Page>

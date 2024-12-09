@@ -46,6 +46,12 @@ namespace PDV.UI.WinUI3
                     case "products":
                         ContentFrame.Navigate(typeof(Views.ProductsPage));
                         break;
+                    case "reports":
+                        ContentFrame.Navigate(typeof(Views.ReportsPage));
+                        break;
+                    case "pos":
+                        ContentFrame.Navigate(typeof(Views.POSPage));
+                        break;
                 }
             }
         }

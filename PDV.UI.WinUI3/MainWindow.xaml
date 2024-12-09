@@ -19,6 +19,8 @@
             <NavigationViewItem Icon="Home" Content="Home" Tag="home"/>
             <NavigationViewItem Icon="People" Content="Funcionários" Tag="employees"/>
             <NavigationViewItem Icon="Calculator" Content="Produtos" Tag="products"/>
+            <NavigationViewItem Icon="People" Content="Relatórios" Tag="reports"/>
+            <NavigationViewItem Icon="Shop" Content="P.O.S Venda" Tag="pos"/>
         </NavigationView.MenuItems>
 
         <Frame x:Name="ContentFrame"/>

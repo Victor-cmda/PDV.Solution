@@ -63,7 +63,7 @@ namespace PDV.UI.WinUI3.Views
 
         private void NavigateToSales(object sender, RoutedEventArgs e)
         {
-            //Frame.Navigate(typeof(SalesPage), null, new DrillInNavigationTransitionInfo());
+            Frame.Navigate(typeof(POSPage), null, new DrillInNavigationTransitionInfo());
         }
 
         private void NavigateToProducts(object sender, RoutedEventArgs e)
@@ -78,7 +78,7 @@ namespace PDV.UI.WinUI3.Views
 
         private void NavigateToReports(object sender, RoutedEventArgs e)
         {
-            //Frame.Navigate(typeof(ReportsPage), null, new DrillInNavigationTransitionInfo());
+            Frame.Navigate(typeof(ReportsPage), null, new DrillInNavigationTransitionInfo());
         }
 
     }
