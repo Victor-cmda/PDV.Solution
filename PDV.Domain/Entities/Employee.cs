@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PDV.Shared.Entities;
 
 namespace PDV.Domain.Entities
 {
-    public class Employee
+    public class Employee : BaseEntity
     {
         public string Name { get; set; }
         public string Role { get; set; }

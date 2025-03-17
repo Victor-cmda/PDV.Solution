@@ -8,21 +8,36 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="PDV.UI.WinUI3">
+    <Grid>
 
-    <NavigationView x:Name="NavView"
-                    IsSettingsVisible="False"
-                    IsBackButtonVisible="Collapsed"
-                    PaneDisplayMode="Left"
-                    SelectionChanged="NavView_SelectionChanged">
+        <InfoBar x:Name="SyncInfoBar"
+                 IsOpen="False"
+                 Severity="Informational"
+                 IsClosable="True"
+                 VerticalAlignment="Top"
+                 HorizontalAlignment="Right"
+                 Margin="0,10,10,0"/>
 
-        <NavigationView.MenuItems>
-            <NavigationViewItem Icon="Home" Content="Home" Tag="home"/>
-            <NavigationViewItem Icon="People" Content="Funcionários" Tag="employees"/>
-            <NavigationViewItem Icon="Calculator" Content="Produtos" Tag="products"/>
-            <NavigationViewItem Icon="People" Content="Relatórios" Tag="reports"/>
-            <NavigationViewItem Icon="Shop" Content="P.O.S Venda" Tag="pos"/>
-        </NavigationView.MenuItems>
+        <NavigationView x:Name="NavView"
+                        IsSettingsVisible="False"
+                        IsBackButtonVisible="Collapsed"
+                        PaneDisplayMode="Left"
+                        SelectionChanged="NavView_SelectionChanged">
 
-        <Frame x:Name="ContentFrame"/>
-    </NavigationView>
+            <NavigationView.MenuItems>
+                <NavigationViewItem Icon="Home" Content="Home" Tag="home"/>
+                <NavigationViewItem Icon="People" Content="Funcionários" Tag="employees"/>
+                <NavigationViewItem Icon="Calculator" Content="Produtos" Tag="products"/>
+                <NavigationViewItem Icon="People" Content="Relatórios" Tag="reports"/>
+                <NavigationViewItem Icon="Shop" Content="P.O.S Venda" Tag="pos"/>
+            </NavigationView.MenuItems>
+
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem Icon="Sync" Content="Sincronizar" Tag="sync"
+                                    Tapped="SyncButton_Tapped"/>
+            </NavigationView.FooterMenuItems>
+
+            <Frame x:Name="ContentFrame"/>
+        </NavigationView>
+    </Grid>
 </Window>

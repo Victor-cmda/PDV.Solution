@@ -1,17 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using PDV.Domain.Interfaces;
+using PDV.Shared.Enum;
+using System;
+using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -23,9 +16,23 @@ namespace PDV.UI.WinUI3
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        private readonly ISyncNotificationService _syncNotificationService;
+        private readonly ISyncService _syncService;
         public MainWindow()
         {
             this.InitializeComponent();
+
+            // Obter serviços
+            _syncNotificationService = ((App)Microsoft.UI.Xaml.Application.Current).Services.GetService<ISyncNotificationService>();
+            _syncService = ((App)Microsoft.UI.Xaml.Application.Current).Services.GetService<ISyncService>();
+
+            // Assinar eventos
+            if (_syncNotificationService != null)
+            {
+                _syncNotificationService.SyncStatusChanged += OnSyncStatusChanged;
+            }
+
+            // Inicializar navegação
             NavView.SelectedItem = NavView.MenuItems[0];
         }
 
@@ -54,6 +61,48 @@ namespace PDV.UI.WinUI3
                         break;
                 }
             }
+        }
+        private async void SyncButton_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            await SyncDataAsync();
+        }
+
+        private async Task SyncDataAsync()
+        {
+            if (_syncService == null) return;
+
+            try
+            {
+                await _syncService.SynchronizeAsync();
+            }
+            catch (Exception ex)
+            {
+                // A notificação de falha já foi tratada pelo serviço de sincronização
+                // Podemos adicionar tratamento adicional aqui, se necessário
+            }
+        }
+
+        private void OnSyncStatusChanged(object sender, SyncStatusEventArgs e)
+        {
+            // Como estamos em uma thread diferente, precisamos usar o dispatcher
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                SyncInfoBar.IsOpen = true;
+                SyncInfoBar.Message = e.Message;
+
+                switch (e.Status)
+                {
+                    case SyncStatus.InProgress:
+                        SyncInfoBar.Severity = InfoBarSeverity.Informational;
+                        break;
+                    case SyncStatus.Completed:
+                        SyncInfoBar.Severity = InfoBarSeverity.Success;
+                        break;
+                    case SyncStatus.Failed:
+                        SyncInfoBar.Severity = InfoBarSeverity.Error;
+                        break;
+                }
+            });
         }
     }
 }

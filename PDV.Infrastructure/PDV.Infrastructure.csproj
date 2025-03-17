@@ -7,12 +7,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ExternalServices\**" />
+    <Compile Remove="Hardware\**" />
+    <EmbeddedResource Remove="ExternalServices\**" />
+    <EmbeddedResource Remove="Hardware\**" />
+    <None Remove="ExternalServices\**" />
+    <None Remove="Hardware\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1" />
   </ItemGroup>
 
@@ -20,16 +32,6 @@
     <ProjectReference Include="..\PDV.Application\PDV.Application.csproj" />
     <ProjectReference Include="..\PDV.Domain\PDV.Domain.csproj" />
     <ProjectReference Include="..\PDV.Shared\PDV.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Hardware\Printer\" />
-    <Folder Include="Hardware\Scanner\" />
-    <Folder Include="ExternalServices\Payment\" />
-    <Folder Include="ExternalServices\Fiscal\" />
-    <Folder Include="Data\Configurations\" />
-    <Folder Include="Data\Repositories\" />
-    <Folder Include="Data\Contexts\" />
   </ItemGroup>
 
 </Project>

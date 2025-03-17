@@ -61,7 +61,7 @@ namespace PDV.UI.WinUI3.Views
             {
                 new Product
                 {
-                    Id = 1,
+                    Id = new Guid(),
                     Name = "Arroz Integral 1kg",
                     Category = "Alimentos",
                     Price = 8.99m,
@@ -72,7 +72,7 @@ namespace PDV.UI.WinUI3.Views
                 },
                 new Product
                 {
-                    Id = 2,
+                    Id = new Guid(),
                     Name = "Água Mineral 500ml",
                     Category = "Bebidas",
                     Price = 2.50m,
@@ -83,7 +83,7 @@ namespace PDV.UI.WinUI3.Views
                 },
                 new Product
                 {
-                    Id = 3,
+                    Id = new Guid(),
                     Name = "Detergente Líquido 500ml",
                     Category = "Limpeza",
                     Price = 3.99m,
@@ -104,7 +104,7 @@ namespace PDV.UI.WinUI3.Views
             if (result == ContentDialogResult.Primary)
             {
                 var newProduct = dialog.Product;
-                newProduct.Id = AllProducts.Max(p => p.Id) + 1;
+                newProduct.Id = new Guid();
                 AllProducts.Add(newProduct);
                 ApplyFilters();
             }

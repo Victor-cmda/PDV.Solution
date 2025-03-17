@@ -19,8 +19,8 @@
 
         <!-- Cabeçalho -->
         <TextBlock Text="Gerenciamento de Produtos"
-                  Style="{StaticResource TitleLargeTextBlockStyle}"
-                  Margin="0,0,0,20"/>
+                   Style="{StaticResource TitleLargeTextBlockStyle}"
+                   Margin="0,0,0,20"/>
 
         <!-- Barra de Ações e Busca -->
         <Grid Grid.Row="1" Margin="0,0,0,20">
@@ -31,10 +31,10 @@
             </Grid.ColumnDefinitions>
 
             <!-- CommandBar à esquerda -->
-            <CommandBar Grid.Column="0" 
-                       Background="Transparent" 
-                       IsOpen="False" 
-                       DefaultLabelPosition="Right">
+            <CommandBar Grid.Column="0"
+                        Background="Transparent"
+                        IsOpen="False"
+                        DefaultLabelPosition="Right">
                 <AppBarButton Icon="Add" Label="Novo Produto" Click="AddProduct_Click"/>
                 <AppBarButton Icon="Edit" Label="Editar" Click="EditProduct_Click"/>
                 <AppBarButton Icon="Delete" Label="Excluir" Click="DeleteProduct_Click"/>
@@ -44,20 +44,20 @@
 
             <!-- Busca no meio -->
             <AutoSuggestBox x:Name="SearchBox"
-                           Grid.Column="1"
-                           PlaceholderText="Buscar produtos..."
-                           QueryIcon="Find"
-                           Width="300"
-                           Height="40"
-                           HorizontalAlignment="Center"
-                           TextChanged="SearchBox_TextChanged"/>
+                            Grid.Column="1"
+                            PlaceholderText="Buscar produtos..."
+                            QueryIcon="Find"
+                            Width="300"
+                            Height="40"
+                            HorizontalAlignment="Center"
+                            TextChanged="SearchBox_TextChanged"/>
 
             <!-- Filtro à direita -->
             <ComboBox x:Name="FilterBox"
-                     Grid.Column="2"
-                     PlaceholderText="Filtrar por categoria"
-                     SelectionChanged="FilterBox_SelectionChanged"
-                     MinWidth="150">
+                      Grid.Column="2"
+                      PlaceholderText="Filtrar por categoria"
+                      SelectionChanged="FilterBox_SelectionChanged"
+                      MinWidth="150">
                 <ComboBoxItem Content="Todas"/>
                 <ComboBoxItem Content="Alimentos"/>
                 <ComboBoxItem Content="Bebidas"/>
@@ -75,10 +75,10 @@
             </Grid.ColumnDefinitions>
 
             <Grid>
-                <ListView x:Name="ProductsList" 
-                         SelectionMode="Single"
-                         SelectionChanged="ProductsList_SelectionChanged"
-                         Margin="0,0,20,0">
+                <ListView x:Name="ProductsList"
+                          SelectionMode="Single"
+                          SelectionChanged="ProductsList_SelectionChanged"
+                          Margin="0,0,20,0">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid Padding="12">
@@ -91,77 +91,77 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="{Binding Name}" 
-                                     Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock Text="{Binding Category}" 
-                                     Grid.Row="1"
-                                     Style="{StaticResource CaptionTextBlockStyle}"
-                                     Opacity="0.6"/>
+                                <TextBlock Text="{Binding Name}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding Category}"
+                                           Grid.Row="1"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Opacity="0.6"/>
                                 <TextBlock Grid.Column="1"
-                                     Grid.RowSpan="2"
-                                     VerticalAlignment="Center"
-                                     Style="{StaticResource BodyStrongTextBlockStyle}"
-                                     Foreground="{ThemeResource SystemFillColorSuccessBrush}">
-                                <Run Text="R$ "/>
-                                <Run Text="{Binding Price, Mode=OneWay}"/>
+                                           Grid.RowSpan="2"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                           Foreground="{ThemeResource SystemFillColorSuccessBrush}">
+                                    <Run Text="R$ "/>
+                                    <Run Text="{Binding Price, Mode=OneWay}"/>
                                 </TextBlock>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
 
-                <controls:EmptyStateControl 
+                <controls:EmptyStateControl
                     x:Name="EmptyState"
                     Visibility="{x:Bind HasNoItems, Mode=OneWay}"
                     Message="Nenhum produto encontrado"
-                    Description="Tente ajustar os filtros ou adicione um novo produto"/>    
+                    Description="Tente ajustar os filtros ou adicione um novo produto"/>
 
             </Grid>
 
             <!-- Detalhes do Produto -->
-            <StackPanel Grid.Column="1" 
-                       Width="300" 
-                       Padding="20" 
-                       BorderThickness="1" 
-                       BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                       CornerRadius="8">
-                <TextBlock Text="Detalhes do Produto" 
-                         Style="{StaticResource SubtitleTextBlockStyle}"
-                         Margin="0,0,0,20"/>
+            <StackPanel Grid.Column="1"
+                        Width="300"
+                        Padding="20"
+                        BorderThickness="1"
+                        BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                        CornerRadius="8">
+                <TextBlock Text="Detalhes do Produto"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Margin="0,0,0,20"/>
 
                 <TextBlock Text="Nome" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                <TextBlock x:Name="NameText" Text="-" 
-                         Style="{StaticResource BodyTextBlockStyle}" 
-                         Margin="0,0,0,10"/>
+                <TextBlock x:Name="NameText" Text="-"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Margin="0,0,0,10"/>
 
                 <TextBlock Text="Categoria" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                <TextBlock x:Name="CategoryText" Text="-" 
-                         Style="{StaticResource BodyTextBlockStyle}"
-                         Margin="0,0,0,10"/>
+                <TextBlock x:Name="CategoryText" Text="-"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Margin="0,0,0,10"/>
 
                 <TextBlock Text="Preço" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                <TextBlock x:Name="PriceText" Text="-" 
-                         Style="{StaticResource BodyTextBlockStyle}"
-                         Margin="0,0,0,10"/>
+                <TextBlock x:Name="PriceText" Text="-"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Margin="0,0,0,10"/>
 
                 <TextBlock Text="Código de Barras" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                <TextBlock x:Name="BarcodeText" Text="-" 
-                         Style="{StaticResource BodyTextBlockStyle}"
-                         Margin="0,0,0,10"/>
+                <TextBlock x:Name="BarcodeText" Text="-"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Margin="0,0,0,10"/>
 
                 <TextBlock Text="Estoque" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                <TextBlock x:Name="StockText" Text="-" 
-                         Style="{StaticResource BodyTextBlockStyle}"
-                         Margin="0,0,0,10"/>
+                <TextBlock x:Name="StockText" Text="-"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Margin="0,0,0,10"/>
 
                 <TextBlock Text="Fornecedor" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                <TextBlock x:Name="SupplierText" Text="-" 
-                         Style="{StaticResource BodyTextBlockStyle}"
-                         Margin="0,0,0,10"/>
+                <TextBlock x:Name="SupplierText" Text="-"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           Margin="0,0,0,10"/>
 
                 <TextBlock Text="Última Atualização" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                <TextBlock x:Name="LastUpdateText" Text="-" 
-                         Style="{StaticResource BodyTextBlockStyle}"/>
+                <TextBlock x:Name="LastUpdateText" Text="-"
+                           Style="{StaticResource BodyTextBlockStyle}"/>
             </StackPanel>
         </Grid>
     </Grid>
