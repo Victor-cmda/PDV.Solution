@@ -16,7 +16,8 @@
                  IsClosable="True"
                  VerticalAlignment="Top"
                  HorizontalAlignment="Right"
-                 Margin="0,10,10,0"/>
+                 Margin="0,10,10,0"
+                 Canvas.ZIndex="100"/>
 
         <NavigationView x:Name="NavView"
                         IsSettingsVisible="False"

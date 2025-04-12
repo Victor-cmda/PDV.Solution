@@ -2,38 +2,78 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using PDV.Domain.Interfaces;
+using PDV.Domain.Interfaces.PDV.Domain.Interfaces;
 using PDV.Shared.Enum;
 using System;
 using System.Threading.Tasks;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace PDV.UI.WinUI3
 {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainWindow : Window
     {
-        private readonly ISyncNotificationService _syncNotificationService;
         private readonly ISyncService _syncService;
+        private readonly ISyncNotificationService _syncNotificationService;
+        private readonly IConnectivityService _connectivityService;
+        private DispatcherTimer _infoBarTimer;
         public MainWindow()
         {
             this.InitializeComponent();
 
-            // Obter serviços
-            _syncNotificationService = ((App)Microsoft.UI.Xaml.Application.Current).Services.GetService<ISyncNotificationService>();
-            _syncService = ((App)Microsoft.UI.Xaml.Application.Current).Services.GetService<ISyncService>();
+            var serviceProvider = ((App)Microsoft.UI.Xaml.Application.Current).Services;
 
-            // Assinar eventos
+            _syncService = serviceProvider.GetService<ISyncService>();
+            _syncNotificationService = serviceProvider.GetService<ISyncNotificationService>();
+            _connectivityService = serviceProvider.GetService<IConnectivityService>();
+
+            _infoBarTimer = new DispatcherTimer();
+            _infoBarTimer.Interval = TimeSpan.FromSeconds(5);
+            _infoBarTimer.Tick += InfoBarTimer_Tick;
+
             if (_syncNotificationService != null)
             {
-                _syncNotificationService.SyncStatusChanged += OnSyncStatusChanged;
+                _syncNotificationService.SyncStatusChanged += SyncNotificationService_SyncStatusChanged;
             }
 
-            // Inicializar navegação
+            SyncInfoBar.IsClosable = true;
+            SyncInfoBar.CloseButtonClick += SyncInfoBar_CloseButtonClick;
+
             NavView.SelectedItem = NavView.MenuItems[0];
+        }
+
+        private void InfoBarTimer_Tick(object sender, object e)
+        {
+            SyncInfoBar.IsOpen = false;
+            _infoBarTimer.Stop();
+        }
+
+        private void SyncInfoBar_CloseButtonClick(InfoBar sender, object args)
+        {
+            _infoBarTimer.Stop();
+            SyncInfoBar.IsOpen = false;
+        }
+
+        private void SyncNotificationService_SyncStatusChanged(object sender, SyncStatusEventArgs e)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                SyncInfoBar.IsOpen = true;
+                SyncInfoBar.Message = e.Message;
+
+                switch (e.Status)
+                {
+                    case SyncStatus.InProgress:
+                        SyncInfoBar.Severity = InfoBarSeverity.Informational;
+                        break;
+                    case SyncStatus.Completed:
+                        SyncInfoBar.Severity = InfoBarSeverity.Success;
+                        _infoBarTimer.Start();
+                        break;
+                    case SyncStatus.Failed:
+                        SyncInfoBar.Severity = InfoBarSeverity.Error;
+                        _infoBarTimer.Start();
+                        break;
+                }
+            });
         }
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -77,14 +117,11 @@ namespace PDV.UI.WinUI3
             }
             catch (Exception ex)
             {
-                // A notificação de falha já foi tratada pelo serviço de sincronização
-                // Podemos adicionar tratamento adicional aqui, se necessário
             }
         }
 
         private void OnSyncStatusChanged(object sender, SyncStatusEventArgs e)
         {
-            // Como estamos em uma thread diferente, precisamos usar o dispatcher
             DispatcherQueue.TryEnqueue(() =>
             {
                 SyncInfoBar.IsOpen = true;
