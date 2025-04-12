@@ -9,137 +9,606 @@
     mc:Ignorable="d">
 
     <Page.Resources>
+        <Style x:Key="MenuCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="24"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
         <Storyboard x:Name="PageLoadAnimation">
-            <!-- Animação do título -->
-            <DoubleAnimation
-                Storyboard.TargetName="TitlePanel"
-                Storyboard.TargetProperty="Opacity"
-                From="0" To="1" Duration="0:0:0.5"/>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="WelcomeCard" Storyboard.TargetProperty="Opacity">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.6" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <ExponentialEase EasingMode="EaseOut" Exponent="6"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
 
-            <!-- Animação do botão Nova Venda -->
-            <DoubleAnimation
-                Storyboard.TargetName="SalesButton"
-                Storyboard.TargetProperty="Opacity"
-                From="0" To="1" Duration="0:0:0.5"
-                BeginTime="0:0:0.2"/>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="WelcomeCard" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="-50"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
 
-            <!-- Animação do botão Produtos -->
-            <DoubleAnimation
-                Storyboard.TargetName="ProductsButton"
-                Storyboard.TargetProperty="Opacity"
-                From="0" To="1" Duration="0:0:0.5"
-                BeginTime="0:0:0.3"/>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="QuickStatsPanel" Storyboard.TargetProperty="Opacity">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.8" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <ExponentialEase EasingMode="EaseOut" Exponent="6"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
 
-            <!-- Animação do botão Clientes -->
-            <DoubleAnimation
-                Storyboard.TargetName="CustomersButton"
-                Storyboard.TargetProperty="Opacity"
-                From="0" To="1" Duration="0:0:0.5"
-                BeginTime="0:0:0.4"/>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="QuickStatsPanel" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="30"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.9" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
 
-            <!-- Animação do botão Relatórios -->
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SalesCard" Storyboard.TargetProperty="Opacity">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.9" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <ExponentialEase EasingMode="EaseOut" Exponent="6"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SalesCard" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="50"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ProductsCard" Storyboard.TargetProperty="Opacity">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1.1" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <ExponentialEase EasingMode="EaseOut" Exponent="6"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ProductsCard" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="50"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1.2" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="CustomersCard" Storyboard.TargetProperty="Opacity">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1.3" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <ExponentialEase EasingMode="EaseOut" Exponent="6"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="CustomersCard" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="50"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1.4" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ReportsCard" Storyboard.TargetProperty="Opacity">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1.5" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <ExponentialEase EasingMode="EaseOut" Exponent="6"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ReportsCard" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="50"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1.6" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="FooterPanel" Storyboard.TargetProperty="Opacity">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1.7" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <ExponentialEase EasingMode="EaseOut" Exponent="6"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <Storyboard x:Name="ContinuousAnimation" RepeatBehavior="Forever">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BackgroundDecoration" Storyboard.TargetProperty="Opacity">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0.05"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0.15"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:8" Value="0.05"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BackgroundDecoration" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <SineEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:4" Value="20">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <SineEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:8" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <SineEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BackgroundDecoration" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateX)">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <SineEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:4" Value="-30">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <SineEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:8" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <SineEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BackgroundDecoration" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <SineEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:8" Value="360">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <SineEase EasingMode="EaseInOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <Storyboard x:Name="ClockAnimation">
             <DoubleAnimation
-                Storyboard.TargetName="ReportsButton"
+                Storyboard.TargetName="CurrentTime"
                 Storyboard.TargetProperty="Opacity"
-                From="0" To="1" Duration="0:0:0.5"
-                BeginTime="0:0:0.5"/>
+                From="0.8" To="1" Duration="0:0:0.5"
+                AutoReverse="True"
+                RepeatBehavior="Forever"/>
         </Storyboard>
     </Page.Resources>
 
-    <Grid Padding="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="{ThemeResource SolidBackgroundFillColorBaseBrush}" Offset="0.0" />
+                <GradientStop Color="{ThemeResource SolidBackgroundFillColorSecondaryBrush}" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
 
-        <StackPanel x:Name="TitlePanel" Grid.Row="0" Spacing="10" Opacity="0">
-            <TextBlock Text="Bem-vindo ao Sistema PDV"
-                     Style="{StaticResource TitleLargeTextBlockStyle}"/>
-            <TextBlock Text="Selecione uma das opções abaixo para começar"
-                     Style="{StaticResource BodyTextBlockStyle}"/>
-        </StackPanel>
+        <Canvas x:Name="BackgroundDecoration"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Width="1000" Height="800"
+                RenderTransformOrigin="0.5,0.5">
+            <Canvas.RenderTransform>
+                <CompositeTransform/>
+            </Canvas.RenderTransform>
 
-        <Grid Grid.Row="1" Margin="0,20,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <Path Canvas.Left="400" Canvas.Top="0"
+                  Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                  Opacity="0.025"
+                  Data="M0,0 C100,50 150,100 100,200 C50,300 100,400 200,450 C300,500 350,400 400,500 L400,0 Z"
+                  Width="400" Height="500"/>
 
-            <!-- Nova Venda -->
-            <Button x:Name="SalesButton"
-                    Grid.Column="0" Grid.Row="0" 
-                    Margin="5" 
-                    HorizontalAlignment="Stretch" 
-                    VerticalAlignment="Stretch"
-                    Click="NavigateToSales"
-                    Opacity="0">
-                <StackPanel>
-                    <FontIcon Glyph="&#xE8FB;" 
-                             FontSize="48"
-                             FontFamily="Segoe MDL2 Assets"/>
-                    <TextBlock Text="Nova Venda" 
-                             Margin="0,10,0,0"
-                             Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <Path Canvas.Left="600" Canvas.Top="100"
+                  Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                  Opacity="0.02"
+                  Data="M0,0 C50,100 100,50 150,100 C200,150 150,200 200,250 L200,0 Z"
+                  Width="200" Height="250"/>
+        </Canvas>
+
+        <ScrollViewer Padding="32" VerticalScrollBarVisibility="Auto">
+            <Grid RowSpacing="24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Border x:Name="WelcomeCard"
+                        Grid.Row="0"
+                        Style="{StaticResource MenuCardStyle}"
+                        Padding="24"
+                        RenderTransformOrigin="0.5,0.5">
+                    <Border.RenderTransform>
+                        <TranslateTransform/>
+                    </Border.RenderTransform>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="8" VerticalAlignment="Center">
+                            <TextBlock Text="Bem-vindo ao Sistema PDV"
+                                       Style="{StaticResource TitleLargeTextBlockStyle}"
+                                       FontWeight="SemiBold"/>
+
+                            <TextBlock Text="Gerencie suas vendas, controle seu estoque e acompanhe o desempenho do seu negócio"
+                                       Style="{StaticResource BodyTextBlockStyle}"
+                                       Opacity="0.8"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="24,0,0,0">
+                            <TextBlock x:Name="CurrentDate"
+                                       Text="Sexta-feira, 11 de Abril"
+                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                       HorizontalAlignment="Right"/>
+
+                            <TextBlock x:Name="CurrentTime"
+                                       Text="15:45:32"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                       Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                       HorizontalAlignment="Right"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border x:Name="QuickStatsPanel"
+                        Grid.Row="1"
+                        Style="{StaticResource MenuCardStyle}"
+                        Padding="24"
+                        RenderTransformOrigin="0.5,0.5">
+                    <Border.RenderTransform>
+                        <TranslateTransform/>
+                    </Border.RenderTransform>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Resumo do Sistema"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   Margin="0,0,0,16"/>
+
+                        <Grid Grid.Row="1" ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="16">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE8FB;"
+                                                  FontSize="16"
+                                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                        <TextBlock Text="Vendas Hoje"
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <TextBlock Text="23"
+                                               Style="{StaticResource TitleLargeTextBlockStyle}"
+                                               Margin="0,8,0,0"/>
+
+                                    <TextBlock Text="+15% vs ontem"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="16">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE7C1;"
+                                                  FontSize="16"
+                                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                        <TextBlock Text="Produtos"
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <TextBlock Text="1.248"
+                                               Style="{StaticResource TitleLargeTextBlockStyle}"
+                                               Margin="0,8,0,0"/>
+
+                                    <TextBlock Text="32 com baixo estoque"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="16">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE77B;"
+                                                  FontSize="16"
+                                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                        <TextBlock Text="Clientes"
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <TextBlock Text="543"
+                                               Style="{StaticResource TitleLargeTextBlockStyle}"
+                                               Margin="0,8,0,0"/>
+
+                                    <TextBlock Text="5 novos esta semana"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="3"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="16">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE9F9;"
+                                                  FontSize="16"
+                                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                        <TextBlock Text="Receita Mensal"
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <TextBlock Text="R$ 45.380"
+                                               Style="{StaticResource TitleLargeTextBlockStyle}"
+                                               Margin="0,8,0,0"/>
+
+                                    <TextBlock Text="+8.5% vs mês anterior"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="2" ColumnSpacing="24" RowSpacing="24" Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border x:Name="SalesCard"
+                            Grid.Column="0" Grid.Row="0"
+                            Style="{StaticResource MenuCardStyle}"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <TranslateTransform/>
+                        </Border.RenderTransform>
+
+                        <Button x:Name="SalesButton"
+                                Style="{StaticResource MenuButtonStyle}"
+                                Click="NavigateToSales">
+                            <Grid>
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Ellipse Width="80" Height="80"
+                                             Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                                             Opacity="0.1"/>
+
+                                    <FontIcon Glyph="&#xE8FB;"
+                                              FontSize="48"
+                                              FontFamily="Segoe MDL2 Assets"
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                              Margin="0,-64,0,24"/>
+
+                                    <TextBlock Text="Nova Venda"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                               HorizontalAlignment="Center"/>
+
+                                    <TextBlock Text="Iniciar uma nova venda no PDV"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               HorizontalAlignment="Center"
+                                               Opacity="0.7"
+                                               Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                    </Border>
+
+                    <Border x:Name="ProductsCard"
+                            Grid.Column="1" Grid.Row="0"
+                            Style="{StaticResource MenuCardStyle}"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <TranslateTransform/>
+                        </Border.RenderTransform>
+
+                        <Button x:Name="ProductsButton"
+                                Style="{StaticResource MenuButtonStyle}"
+                                Click="NavigateToProducts">
+                            <Grid>
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Ellipse Width="80" Height="80"
+                                             Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                                             Opacity="0.1"/>
+
+                                    <FontIcon Glyph="&#xE7C1;"
+                                              FontSize="48"
+                                              FontFamily="Segoe MDL2 Assets"
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                              Margin="0,-64,0,24"/>
+
+                                    <TextBlock Text="Produtos"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                               HorizontalAlignment="Center"/>
+
+                                    <TextBlock Text="Gerenciar estoque e produtos"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               HorizontalAlignment="Center"
+                                               Opacity="0.7"
+                                               Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                    </Border>
+
+                    <Border x:Name="CustomersCard"
+                            Grid.Column="0" Grid.Row="1"
+                            Style="{StaticResource MenuCardStyle}"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <TranslateTransform/>
+                        </Border.RenderTransform>
+
+                        <Button x:Name="CustomersButton"
+                                Style="{StaticResource MenuButtonStyle}"
+                                Click="NavigateToCustomers">
+                            <Grid>
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Ellipse Width="80" Height="80"
+                                             Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                                             Opacity="0.1"/>
+
+                                    <FontIcon Glyph="&#xE77B;"
+                                              FontSize="48"
+                                              FontFamily="Segoe MDL2 Assets"
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                              Margin="0,-64,0,24"/>
+
+                                    <TextBlock Text="Clientes"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                               HorizontalAlignment="Center"/>
+
+                                    <TextBlock Text="Gerenciar cadastro de clientes"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               HorizontalAlignment="Center"
+                                               Opacity="0.7"
+                                               Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                    </Border>
+
+                    <Border x:Name="ReportsCard"
+                            Grid.Column="1" Grid.Row="1"
+                            Style="{StaticResource MenuCardStyle}"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <TranslateTransform/>
+                        </Border.RenderTransform>
+
+                        <Button x:Name="ReportsButton"
+                                Style="{StaticResource MenuButtonStyle}"
+                                Click="NavigateToReports">
+                            <Grid>
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Ellipse Width="80" Height="80"
+                                             Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                                             Opacity="0.1"/>
+
+                                    <FontIcon Glyph="&#xE9F9;"
+                                              FontSize="48"
+                                              FontFamily="Segoe MDL2 Assets"
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                              Margin="0,-64,0,24"/>
+
+                                    <TextBlock Text="Relatórios"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                               HorizontalAlignment="Center"/>
+
+                                    <TextBlock Text="Visualizar estatísticas e relatórios"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               HorizontalAlignment="Center"
+                                               Opacity="0.7"
+                                               Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                    </Border>
+                </Grid>
+
+                <StackPanel x:Name="FooterPanel"
+                            Grid.Row="3"
+                            HorizontalAlignment="Center"
+                            Orientation="Horizontal"
+                            Spacing="4"
+                            Opacity="0"
+                            Margin="0,16,0,0">
+                    <TextBlock Text="PDV System"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Opacity="0.6"/>
+                    <TextBlock Text="•"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Opacity="0.6"/>
+                    <TextBlock Text="Versão 1.0.0"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Opacity="0.6"/>
+                    <TextBlock Text="•"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Opacity="0.6"/>
+                    <TextBlock Text="© 2025"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Opacity="0.6"/>
                 </StackPanel>
-            </Button>
-
-            <!-- Produtos -->
-            <Button x:Name="ProductsButton"
-                    Grid.Column="1" Grid.Row="0"
-                    Margin="5" 
-                    HorizontalAlignment="Stretch" 
-                    VerticalAlignment="Stretch"
-                    Click="NavigateToProducts"
-                    Opacity="0">
-                <StackPanel>
-                    <FontIcon Glyph="&#xE7C1;" 
-                             FontSize="48"
-                             FontFamily="Segoe MDL2 Assets"/>
-                    <TextBlock Text="Produtos" 
-                             Margin="0,10,0,0"
-                             Style="{StaticResource SubtitleTextBlockStyle}"/>
-                </StackPanel>
-            </Button>
-
-            <!-- Clientes -->
-            <Button x:Name="CustomersButton"
-                    Grid.Column="0" Grid.Row="1"
-                    Margin="5" 
-                    HorizontalAlignment="Stretch" 
-                    VerticalAlignment="Stretch"
-                    Click="NavigateToCustomers"
-                    Opacity="0">
-                <StackPanel>
-                    <FontIcon Glyph="&#xE77B;" 
-                             FontSize="48"
-                             FontFamily="Segoe MDL2 Assets"/>
-                    <TextBlock Text="Clientes" 
-                             Margin="0,10,0,0"
-                             Style="{StaticResource SubtitleTextBlockStyle}"/>
-                </StackPanel>
-            </Button>
-
-            <!-- Relatórios -->
-            <Button x:Name="ReportsButton"
-                    Grid.Column="1" Grid.Row="1"
-                    Margin="5" 
-                    HorizontalAlignment="Stretch" 
-                    VerticalAlignment="Stretch"
-                    Click="NavigateToReports"
-                    Opacity="0">
-                <StackPanel>
-                    <FontIcon Glyph="&#xE9F9;" 
-                             FontSize="48"
-                             FontFamily="Segoe MDL2 Assets"/>
-                    <TextBlock Text="Relatórios" 
-                             Margin="0,10,0,0"
-                             Style="{StaticResource SubtitleTextBlockStyle}"/>
-                </StackPanel>
-            </Button>
-        </Grid>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

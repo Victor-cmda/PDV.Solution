@@ -8,32 +8,271 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="PDV.UI.WinUI3">
+    Title="Sistema PDV - Gestão Completa">
+
     <Grid>
+        <!-- Recursos e estilos definidos no Grid principal -->
+        <Grid.Resources>
+            <!-- Estilo personalizado para os itens do NavigationView -->
+            <Style x:Key="NavViewItemStyle" TargetType="NavigationViewItem">
+                <Setter Property="Margin" Value="0,4,0,4"/>
+                <Setter Property="MinHeight" Value="48"/>
+            </Style>
+
+            <!-- Estilo personalizado para botões sutis -->
+            <Style x:Key="CircleButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Width" Value="32"/>
+                <Setter Property="Height" Value="32"/>
+                <Setter Property="CornerRadius" Value="16"/>
+                <Setter Property="Padding" Value="0"/>
+            </Style>
+        </Grid.Resources>
+
         <!-- Sistema de notificação global -->
         <controls:NotificationControl x:Name="GlobalNotification"
                                       Canvas.ZIndex="999"/>
 
-        <NavigationView x:Name="NavView"
-                        IsSettingsVisible="False"
-                        IsBackButtonVisible="Collapsed"
-                        PaneDisplayMode="Left"
-                        SelectionChanged="NavView_SelectionChanged">
+        <!-- Gradiente sutil para o background -->
+        <Rectangle Fill="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                   Grid.RowSpan="2"/>
 
-            <NavigationView.MenuItems>
-                <NavigationViewItem Icon="Home" Content="Home" Tag="home"/>
-                <NavigationViewItem Icon="People" Content="Funcionários" Tag="employees"/>
-                <NavigationViewItem Icon="Calculator" Content="Produtos" Tag="products"/>
-                <NavigationViewItem Icon="People" Content="Relatórios" Tag="reports"/>
-                <NavigationViewItem Icon="Shop" Content="P.O.S Venda" Tag="pos"/>
-            </NavigationView.MenuItems>
+        <!-- Painel principal com NavigationView -->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-            <NavigationView.FooterMenuItems>
-                <NavigationViewItem Icon="Sync" Content="Sincronizar" Tag="sync"
-                                    Tapped="SyncButton_Tapped"/>
-            </NavigationView.FooterMenuItems>
+            <!-- Cabeçalho personalizado -->
+            <Grid x:Name="CustomHeader"
+                  Grid.Row="0"
+                  Height="48"
+                  Background="{ThemeResource AccentFillColorDefaultBrush}"
+                  Padding="16,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <Frame x:Name="ContentFrame"/>
-        </NavigationView>
+                <!-- Logo e título -->
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Spacing="12">
+                    <FontIcon Glyph="&#xE8F1;"
+                              FontSize="20"
+                              Foreground="White"/>
+                    <TextBlock Text="SISTEMA PDV"
+                               FontWeight="SemiBold"
+                               FontSize="16"
+                               VerticalAlignment="Center"
+                               Foreground="White"/>
+                </StackPanel>
+
+                <!-- Informações do sistema -->
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Spacing="20">
+                    <!-- Status do Sistema -->
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Spacing="8">
+                        <Ellipse Width="8" Height="8" Fill="#6EFF6E"/>
+                        <TextBlock Text="Sistema Online"
+                                   Foreground="White"
+                                   FontSize="12"/>
+                    </StackPanel>
+
+                    <!-- Versão -->
+                    <TextBlock Text="v1.0.0"
+                               Foreground="White"
+                               FontSize="12"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Botão de usuário -->
+                    <Button Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PersonPicture Width="24" Height="24"
+                                           Foreground="White"
+                                           Initials="A"/>
+                            <TextBlock Text="Administrador"
+                                       Foreground="White"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"/>
+                            <FontIcon Glyph="&#xE70D;"
+                                      FontSize="12"
+                                      Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- NavigationView principal -->
+            <NavigationView x:Name="NavView"
+                            Grid.Row="1"
+                            IsSettingsVisible="False"
+                            IsBackButtonVisible="Collapsed"
+                            PaneDisplayMode="Left"
+                            SelectionChanged="NavView_SelectionChanged"
+                            PaneOpening="NavView_PaneOpening"
+                            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                            ExpandedModeThresholdWidth="1200">
+
+                <NavigationView.MenuItems>
+                    <NavigationViewItem Content="Dashboard" Tag="home" Style="{StaticResource NavViewItemStyle}">
+                        <NavigationViewItem.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE80F;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+
+                    <NavigationViewItem Content="Funcionários" Tag="employees" Style="{StaticResource NavViewItemStyle}">
+                        <NavigationViewItem.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE716;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+
+                    <NavigationViewItem Content="Produtos" Tag="products" Style="{StaticResource NavViewItemStyle}">
+                        <NavigationViewItem.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xECA5;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+
+                    <NavigationViewItem Content="Relatórios" Tag="reports" Style="{StaticResource NavViewItemStyle}">
+                        <NavigationViewItem.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE9F9;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+
+                    <NavigationViewItem Content="PDV Vendas" Tag="pos" Style="{StaticResource NavViewItemStyle}">
+                        <NavigationViewItem.Icon>
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xEDC4;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                </NavigationView.MenuItems>
+
+                <!-- Separador -->
+                <NavigationView.PaneFooter>
+                    <StackPanel>
+                        <NavigationViewItemSeparator Margin="0,8"/>
+
+                        <!-- Status da Sincronização -->
+                        <Grid Margin="14,0,14,8"
+                              Background="{ThemeResource LayerFillColorDefaultBrush}"
+                              CornerRadius="4"
+                              Padding="8,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Última sincronização: 17:45"
+                                       Grid.Column="0"
+                                       FontSize="11"
+                                       Opacity="0.8"
+                                       VerticalAlignment="Center"/>
+
+                            <Button Grid.Column="1"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="4"
+                                    CornerRadius="4"
+                                    ToolTipService.ToolTip="Sincronizar agora"
+                                    Tapped="SyncButton_Tapped">
+                                <FontIcon Glyph="&#xE895;"
+                                          FontSize="14"
+                                          Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- Item Sincronizar -->
+                        <NavigationViewItem Content="Sincronizar Dados"
+                                            Tag="sync"
+                                            Style="{StaticResource NavViewItemStyle}"
+                                            Tapped="SyncButton_Tapped">
+                            <NavigationViewItem.Icon>
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE895;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+
+                        <!-- Item Configurações -->
+                        <NavigationViewItem Tag="settings"
+                                            Style="{StaticResource NavViewItemStyle}">
+                            <NavigationViewItem.Icon>
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE713;"/>
+                            </NavigationViewItem.Icon>
+                            <NavigationViewItem.Content>
+                                <TextBlock Text="Configurações"/>
+                            </NavigationViewItem.Content>
+                        </NavigationViewItem>
+                    </StackPanel>
+                </NavigationView.PaneFooter>
+
+                <!-- Conteúdo principal -->
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Breadcrumb e informações da página -->
+                    <Grid Grid.Row="0"
+                          Padding="24,12,24,12"
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          BorderThickness="0,0,0,1"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <TextBlock x:Name="PageTitle"
+                                       Text="Dashboard"
+                                       Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    Spacing="16">
+                            <!-- Data Atual -->
+                            <StackPanel Orientation="Horizontal"
+                                        VerticalAlignment="Center"
+                                        Spacing="8">
+                                <FontIcon Glyph="&#xE163;"
+                                          FontSize="14"
+                                          Opacity="0.6"
+                                          VerticalAlignment="Center"/>
+                                <TextBlock x:Name="CurrentDateText"
+                                           Text="11 Abril 2025"
+                                           Style="{ThemeResource CaptionTextBlockStyle}"
+                                           Opacity="0.8"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Botão de ajuda -->
+                            <Button Style="{StaticResource CircleButtonStyle}"
+                                    ToolTipService.ToolTip="Ajuda">
+                                <FontIcon Glyph="&#xE897;" FontSize="14"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Frame para conteúdo das páginas -->
+                    <Frame x:Name="ContentFrame"
+                           Grid.Row="1"
+                           Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"/>
+                </Grid>
+            </NavigationView>
+        </Grid>
     </Grid>
 </Window>

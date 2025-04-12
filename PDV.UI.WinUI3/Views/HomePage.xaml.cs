@@ -1,29 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using System;
 
 namespace PDV.UI.WinUI3.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class HomePage : Page
     {
+        private DispatcherTimer _clockTimer;
+
         public HomePage()
         {
             this.InitializeComponent();
@@ -33,32 +19,55 @@ namespace PDV.UI.WinUI3.Views
         {
             base.OnNavigatedTo(e);
 
-            // Configurar posições iniciais
-            TitlePanel.Translation = new System.Numerics.Vector3(0, -50, 0);
-            SalesButton.Translation = new System.Numerics.Vector3(0, 50, 0);
-            ProductsButton.Translation = new System.Numerics.Vector3(0, 50, 0);
-            CustomersButton.Translation = new System.Numerics.Vector3(0, 50, 0);
-            ReportsButton.Translation = new System.Numerics.Vector3(0, 50, 0);
-
-            // Iniciar animações
+            // Start the entrance animations
             PageLoadAnimation.Begin();
 
-            // Animar posições
-            AnimateElement(TitlePanel, 0);
-            AnimateElement(SalesButton, 200);
-            AnimateElement(ProductsButton, 300);
-            AnimateElement(CustomersButton, 400);
-            AnimateElement(ReportsButton, 500);
+            // Start the continuous background animation
+            ContinuousAnimation.Begin();
+
+            // Initialize and start the clock
+            InitializeClock();
+
+            // Start the clock animation
+            ClockAnimation.Begin();
         }
 
-        private void AnimateElement(UIElement element, int delay)
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            DispatcherQueue.TryEnqueue(() =>
+            base.OnNavigatedFrom(e);
+
+            // Stop timers when navigating away
+            if (_clockTimer != null)
             {
-                var animation = element.Translation;
-                animation.Y = 0;
-                element.Translation = animation;
-            });
+                _clockTimer.Stop();
+            }
+
+            // Stop animations
+            ContinuousAnimation.Stop();
+            ClockAnimation.Stop();
+        }
+
+        private void InitializeClock()
+        {
+            // Update date and time initially
+            UpdateDateTime();
+
+            // Create timer to update the clock
+            _clockTimer = new DispatcherTimer();
+            _clockTimer.Interval = TimeSpan.FromSeconds(1);
+            _clockTimer.Tick += (s, e) => UpdateDateTime();
+            _clockTimer.Start();
+        }
+
+        private void UpdateDateTime()
+        {
+            var now = DateTime.Now;
+
+            // Update the date display with day of week and date
+            CurrentDate.Text = now.ToString("dddd, d 'de' MMMM");
+
+            // Update the time display
+            CurrentTime.Text = now.ToString("HH:mm:ss");
         }
 
         private void NavigateToSales(object sender, RoutedEventArgs e)
@@ -73,14 +82,13 @@ namespace PDV.UI.WinUI3.Views
 
         private void NavigateToCustomers(object sender, RoutedEventArgs e)
         {
-            //Frame.Navigate(typeof(CustomersPage), null, new DrillInNavigationTransitionInfo());
+            // Uncomment when the page is available
+            // Frame.Navigate(typeof(CustomersPage), null, new DrillInNavigationTransitionInfo());
         }
 
         private void NavigateToReports(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(ReportsPage), null, new DrillInNavigationTransitionInfo());
         }
-
     }
 }
-
