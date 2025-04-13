@@ -1,248 +1,211 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
+using PDV.Application.Services;
+using PDV.Domain.Constants;
 using PDV.Domain.Entities;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using PDV.Domain.Interfaces;
+using PDV.UI.WinUI3.Services;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace PDV.UI.WinUI3.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class EmployeesPage : Page, INotifyPropertyChanged
+    public sealed partial class EmployeesPage : Page
     {
-        private ObservableCollection<Employee> FilteredEmployees { get; set; }
-        private ObservableCollection<Employee> AllEmployees { get; set; }
+        private readonly IAuthenticationService _authService;
+        private readonly EmployeeService _employeeService;
+        private readonly ILogger<EmployeesPage> _logger;
+        private readonly NotificationService _notificationService;
 
-        public bool HasItems => FilteredEmployees?.Count > 0;
-        public bool HasNoItems => !HasItems;
+        private Employee _currentUser;
+        private ObservableCollection<Employee> _employees;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public bool HasNoItems => _employees == null || !_employees.Any();
 
         public EmployeesPage()
         {
             this.InitializeComponent();
-            LoadEmployees();
-            FilterBox.SelectedIndex = 0; // Selecionar "Todos" por padrão
 
-            FilteredEmployees.CollectionChanged += (s, e) =>
-            {
-                NotifyPropertyChanged(nameof(HasItems));
-                NotifyPropertyChanged(nameof(HasNoItems));
-            };
+            // Obter serviços da DI
+            var app = Microsoft.UI.Xaml.Application.Current as App;
+            _authService = app.Services.GetService(typeof(IAuthenticationService)) as IAuthenticationService;
+            _employeeService = app.Services.GetService(typeof(EmployeeService)) as EmployeeService;
+            _logger = app.Services.GetService(typeof(ILogger<EmployeesPage>)) as ILogger<EmployeesPage>;
+            _notificationService = NotificationService.Instance;
+
+            // Inicializar coleção vazia
+            _employees = new ObservableCollection<Employee>();
+            EmployeesList.ItemsSource = _employees;
+
+            // Verificar permissões e carregar dados
+            LoadDataAsync();
         }
 
-        private void LoadEmployees()
+        private async Task LoadDataAsync()
         {
-            // Dados de exemplo
-            AllEmployees = new ObservableCollection<Employee>
+            try
             {
-                new Employee
+                // Carregar o usuário atual
+                var settings = ApplicationData.Current.LocalSettings;
+                string currentUsername = settings.Values["CurrentUsername"] as string ?? "admin";
+                _currentUser = await _authService.GetEmployeeByUsernameAsync(currentUsername);
+
+                if (_currentUser == null)
                 {
-                    Name = "João Silva",
-                    Role = "Vendedor",
-                    Email = "joao@exemplo.com",
-                    Phone = "(11) 98765-4321",
-                    HireDate = new DateTime(2023, 1, 15)
-                },
-                new Employee
-                {
-                    Name = "Maria Santos",
-                    Role = "Gerente",
-                    Email = "maria@exemplo.com",
-                    Phone = "(11) 98765-4322",
-                    HireDate = new DateTime(2022, 6, 1)
-                },
-                new Employee
-                {
-                    Name = "Pedro Oliveira",
-                    Role = "Caixa",
-                    Email = "pedro@exemplo.com",
-                    Phone = "(11) 98765-4323",
-                    HireDate = new DateTime(2023, 3, 10)
+                    _notificationService.ShowError("Não foi possível identificar o usuário atual");
+                    return;
                 }
-            };
 
-            FilteredEmployees = new ObservableCollection<Employee>(AllEmployees);
-            EmployeesList.ItemsSource = FilteredEmployees;
-        }
+                // Verificar permissão para visualizar funcionários
+                if (!await _authService.HasPermissionAsync(_currentUser, Permissions.ViewEmployees))
+                {
+                    _notificationService.ShowError("Você não tem permissão para acessar a lista de funcionários");
 
-        private void EmployeesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (EmployeesList.SelectedItem is Employee employee)
-            {
-                NameText.Text = employee.Name;
-                RoleText.Text = employee.Role;
-                EmailText.Text = employee.Email;
-                PhoneText.Text = employee.Phone;
-                HireDateText.Text = employee.HireDate.ToShortDateString();
+                    // Desabilitar controles
+                    EmployeesList.IsEnabled = false;
+                    FilterBox.IsEnabled = false;
+                    SearchBox.IsEnabled = false;
+
+                    return;
+                }
+
+                // Carregar funcionários
+                var employees = await _employeeService.GetAllEmployeesAsync();
+                _employees.Clear();
+
+                foreach (var employee in employees)
+                {
+                    _employees.Add(employee);
+                }
+
+                // Exibir ou ocultar o estado vazio
+                EmptyState.Visibility = HasNoItems ? Visibility.Visible : Visibility.Collapsed;
             }
-            else
+            catch (Exception ex)
             {
-                ClearDetails();
+                _logger.LogError(ex, "Erro ao carregar funcionários");
+                _notificationService.ShowError($"Erro ao carregar funcionários: {ex.Message}");
             }
-        }
-
-        private void ClearDetails()
-        {
-            NameText.Text = "-";
-            RoleText.Text = "-";
-            EmailText.Text = "-";
-            PhoneText.Text = "-";
-            HireDateText.Text = "-";
         }
 
         private async void AddEmployee_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new EmployeeDialog();
-            dialog.XamlRoot = this.XamlRoot;
-
-            var result = await dialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
+            try
             {
-                AllEmployees.Add(dialog.Employee);
-                ApplyFilters();
+                // Verificar permissão para adicionar funcionários
+                if (_currentUser == null || !await _authService.HasPermissionAsync(_currentUser, Permissions.AddEmployee))
+                {
+                    _notificationService.ShowWarning("Você não tem permissão para adicionar funcionários");
+                    return;
+                }
+
+                // Abrir diálogo para adicionar funcionário
+                var dialog = new EmployeeDialog();
+                dialog.XamlRoot = this.XamlRoot;
+
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary && dialog.CreatedEmployee != null)
+                {
+                    // Adicionar à lista
+                    _employees.Add(dialog.CreatedEmployee);
+
+                    // Selecionar o novo item
+                    EmployeesList.SelectedItem = dialog.CreatedEmployee;
+
+                    // Exibir ou ocultar o estado vazio
+                    EmptyState.Visibility = HasNoItems ? Visibility.Visible : Visibility.Collapsed;
+
+                    // Mostrar notificação
+                    _notificationService.ShowSuccess("Funcionário adicionado com sucesso");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao adicionar funcionário");
+                _notificationService.ShowError($"Erro ao adicionar funcionário: {ex.Message}");
             }
         }
 
         private async void EditEmployee_Click(object sender, RoutedEventArgs e)
         {
-            if (EmployeesList.SelectedItem is Employee selectedEmployee)
+            // Verificar permissão
+            if (_currentUser == null || !await _authService.HasPermissionAsync(_currentUser, Permissions.EditEmployee))
             {
-                var dialog = new EmployeeDialog(selectedEmployee);
-                dialog.XamlRoot = this.XamlRoot;
-
-                var result = await dialog.ShowAsync();
-                if (result == ContentDialogResult.Primary)
-                {
-                    var index = AllEmployees.IndexOf(selectedEmployee);
-                    AllEmployees[index] = dialog.Employee;
-                    ApplyFilters();
-                }
+                _notificationService.ShowWarning("Você não tem permissão para editar funcionários");
+                return;
             }
-            else
+
+            // Verificar se há um item selecionado
+            var selectedEmployee = EmployeesList.SelectedItem as Employee;
+            if (selectedEmployee == null)
             {
-                var dialog = new ContentDialog
-                {
-                    Title = "Aviso",
-                    Content = "Selecione um funcionário para editar",
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-
-                await dialog.ShowAsync();
+                _notificationService.ShowWarning("Selecione um funcionário para editar");
+                return;
             }
+
+            // Implementar lógica de edição...
         }
 
         private async void DeleteEmployee_Click(object sender, RoutedEventArgs e)
         {
-            if (EmployeesList.SelectedItem is Employee selectedEmployee)
+            // Verificar permissão
+            if (_currentUser == null || !await _authService.HasPermissionAsync(_currentUser, Permissions.DeleteEmployee))
             {
-                ContentDialog dialog = new ContentDialog
-                {
-                    Title = "Confirmar exclusão",
-                    Content = $"Tem certeza que deseja excluir o funcionário {selectedEmployee.Name}?",
-                    PrimaryButtonText = "Sim",
-                    CloseButtonText = "Não",
-                    DefaultButton = ContentDialogButton.Close,
-                    XamlRoot = this.XamlRoot
-                };
-
-                var result = await dialog.ShowAsync();
-                if (result == ContentDialogResult.Primary)
-                {
-                    AllEmployees.Remove(selectedEmployee);
-                    ApplyFilters();
-                    ClearDetails();
-                }
+                _notificationService.ShowWarning("Você não tem permissão para excluir funcionários");
+                return;
             }
-            else
+
+            // Verificar se há um item selecionado
+            var selectedEmployee = EmployeesList.SelectedItem as Employee;
+            if (selectedEmployee == null)
             {
-                var dialog = new ContentDialog
-                {
-                    Title = "Aviso",
-                    Content = "Selecione um funcionário para excluir",
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-
-                await dialog.ShowAsync();
+                _notificationService.ShowWarning("Selecione um funcionário para excluir");
+                return;
             }
+
+            // Implementar lógica de exclusão...
         }
 
-        private void RefreshList_Click(object sender, RoutedEventArgs e)
+        private async void RefreshList_Click(object sender, RoutedEventArgs e)
         {
-            LoadEmployees();
-            ClearDetails();
-            SearchBox.Text = string.Empty;
-            FilterBox.SelectedIndex = 0;
+            await LoadDataAsync();
         }
 
         private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
-            {
-                ApplyFilters();
-            }
+            // Implementar lógica de busca...
         }
 
         private void FilterBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ApplyFilters();
+            // Implementar lógica de filtro...
         }
 
-        private void ApplyFilters()
+        private void EmployeesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var filteredEmployees = AllEmployees.AsEnumerable();
-
-            // Aplicar filtro de busca
-            var searchText = SearchBox.Text?.ToLower() ?? string.Empty;
-            if (!string.IsNullOrEmpty(searchText))
+            var selectedEmployee = EmployeesList.SelectedItem as Employee;
+            if (selectedEmployee != null)
             {
-                filteredEmployees = filteredEmployees.Where(emp =>
-                    emp.Name.ToLower().Contains(searchText) ||
-                    emp.Email.ToLower().Contains(searchText) ||
-                    emp.Phone.Contains(searchText));
+                // Atualizar painel de detalhes
+                NameText.Text = selectedEmployee.Name;
+                RoleText.Text = selectedEmployee.Position;
+                EmailText.Text = selectedEmployee.Email;
+                PhoneText.Text = selectedEmployee.Phone;
+                HireDateText.Text = selectedEmployee.HireDate.ToShortDateString();
             }
-
-            // Aplicar filtro de cargo
-            var selectedRole = (FilterBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-            if (selectedRole != null && selectedRole != "Todos")
+            else
             {
-                filteredEmployees = filteredEmployees.Where(emp => emp.Role == selectedRole);
-            }
-
-            // Atualizar lista
-            FilteredEmployees.Clear();
-            foreach (var employee in filteredEmployees)
-            {
-                FilteredEmployees.Add(employee);
-            }
-
-            // Se não houver itens selecionados após o filtro, limpar os detalhes
-            if (EmployeesList.SelectedItem == null)
-            {
-                ClearDetails();
+                // Limpar painel de detalhes
+                NameText.Text = "-";
+                RoleText.Text = "-";
+                EmailText.Text = "-";
+                PhoneText.Text = "-";
+                HireDateText.Text = "-";
             }
         }
     }

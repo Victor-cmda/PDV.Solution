@@ -14,6 +14,10 @@ namespace PDV.Infrastructure.Data.Contexts
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Employee>()
+                .Property(e => e.Role)
+                .HasConversion<int>();
+
             modelBuilder.Entity<Product>().Property<DateTime>("LastSyncTimestamp")
                 .HasDefaultValue(DateTime.MinValue);
             modelBuilder.Entity<Product>().Property<string>("SyncState")

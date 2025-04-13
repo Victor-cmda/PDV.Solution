@@ -13,8 +13,9 @@ namespace PDV.Infrastructure.Data.Contexts
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // Configurações específicas do PostgreSQL, se necessário
+            modelBuilder.Entity<Employee>()
+                .Property(e => e.Role)
+                .HasConversion<int>();
         }
     }
 }

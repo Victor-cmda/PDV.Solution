@@ -6,8 +6,6 @@ using PDV.UI.WinUI3.Services;
 using PDV.UI.WinUI3.Views;
 using System;
 using System.Collections.Generic;
-using Windows.Storage;
-using Windows.UI.ViewManagement;
 
 namespace PDV.UI.WinUI3
 {
@@ -33,6 +31,7 @@ namespace PDV.UI.WinUI3
 
             // Configurar o serviço de notificação
             NotificationService.Instance.Initialize(GlobalNotification);
+
 
             // Obter serviços
             var app = Microsoft.UI.Xaml.Application.Current as App;
@@ -119,7 +118,7 @@ namespace PDV.UI.WinUI3
                 "products" => typeof(ProductsPage),
                 "reports" => typeof(ReportsPage),
                 "pos" => typeof(POSPage),
-                "settings" => typeof(HomePage), // Substituir pelo tipo da página de configurações quando disponível
+                "settings" => typeof(HomePage),
                 _ => typeof(HomePage)
             };
 

@@ -1,132 +1,179 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text.RegularExpressions;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
+using PDV.Application.DTOs;
+using PDV.Application.Services;
+using PDV.Domain.Constants;
 using PDV.Domain.Entities;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using PDV.Domain.Enums;
+using PDV.Domain.Interfaces;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace PDV.UI.WinUI3.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class EmployeeDialog : ContentDialog
     {
-        public Employee Employee { get; private set; }
-        private bool IsEditMode;
+        private readonly IAuthenticationService _authService;
+        private readonly EmployeeService _employeeService;
+        private Employee _currentUser;
+        private bool _isEditMode;
+
+        public Employee CreatedEmployee { get; private set; }
 
         public EmployeeDialog()
         {
             this.InitializeComponent();
+
+            var app = Microsoft.UI.Xaml.Application.Current as App;
+            _authService = app.Services.GetService(typeof(IAuthenticationService)) as IAuthenticationService;
+            _employeeService = app.Services.GetService(typeof(EmployeeService)) as EmployeeService;
+
+            // Popular combobox de cargos
+            RoleBox.ItemsSource = Enum.GetValues(typeof(UserRole)).Cast<UserRole>();
+
+            // Carregar usuário atual
+            LoadCurrentUserAsync();
         }
 
-        public EmployeeDialog(Employee employee) : this()
+        private async void LoadCurrentUserAsync()
         {
-            IsEditMode = true;
-            Employee = employee;
-            Title = "Editar Funcionário";
-
-            // Preencher campos com dados existentes
-            NameBox.Text = employee.Name;
-            EmailBox.Text = employee.Email;
-            PhoneBox.Text = employee.Phone;
-            HireDatePicker.Date = employee.HireDate;
-
-            // Selecionar cargo
-            foreach (ComboBoxItem item in RoleBox.Items)
+            try
             {
-                if (item.Content.ToString() == employee.Role)
+                // Em um cenário real, você armazenaria o usuário atual em algum lugar (como ApplicationData.Current.LocalSettings)
+                // Aqui estamos simulando obter o username do usuário logado 
+                var settings = ApplicationData.Current.LocalSettings;
+                string currentUsername = settings.Values["CurrentUsername"] as string ?? "admin"; // Valor padrão para teste
+
+                _currentUser = await _authService.GetEmployeeByUsernameAsync(currentUsername);
+
+                // Verificar se o usuário tem permissão para adicionar funcionários
+                if (_currentUser != null && !await _authService.HasPermissionAsync(_currentUser, Permissions.AddEmployee))
                 {
-                    RoleBox.SelectedItem = item;
-                    break;
+                    // Desabilitar o diálogo e mostrar mensagem
+                    this.IsPrimaryButtonEnabled = false;
+                    ValidationInfoBar.Message = "Você não tem permissão para adicionar funcionários";
+                    ValidationInfoBar.IsOpen = true;
                 }
+            }
+            catch (Exception ex)
+            {
+                ValidationInfoBar.Message = $"Erro ao carregar dados: {ex.Message}";
+                ValidationInfoBar.IsOpen = true;
             }
         }
 
         private void ValidateInput(object sender, object e)
         {
-            bool isValid = true;
-            string errorMessage = "";
+            bool isValid = !string.IsNullOrEmpty(NameBox.Text) &&
+                           !string.IsNullOrEmpty(EmailBox.Text) &&
+                           !string.IsNullOrEmpty(PhoneBox.Text) &&
+                           !string.IsNullOrEmpty(DocumentBox.Text) &&
+                           !string.IsNullOrEmpty(UsernameBox.Text) &&
+                           !string.IsNullOrEmpty(PasswordBox.Password) &&
+                           RoleBox.SelectedItem != null &&
+                           !string.IsNullOrEmpty(PositionBox.Text) &&
+                           HireDatePicker.Date != null;
 
-            // Validar Nome
-            if (string.IsNullOrWhiteSpace(NameBox.Text))
-            {
-                isValid = false;
-                errorMessage = "Nome é obrigatório";
-            }
-            else if (NameBox.Text.Length < 3)
-            {
-                isValid = false;
-                errorMessage = "Nome deve ter pelo menos 3 caracteres";
-            }
-
-            // Validar Cargo
-            if (RoleBox.SelectedItem == null && isValid)
-            {
-                isValid = false;
-                errorMessage = "Cargo é obrigatório";
-            }
-
-            // Validar Email
-            if (string.IsNullOrWhiteSpace(EmailBox.Text) && isValid)
-            {
-                isValid = false;
-                errorMessage = "Email é obrigatório";
-            }
-            else if (!Regex.IsMatch(EmailBox.Text, @"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$") && isValid)
-            {
-                isValid = false;
-                errorMessage = "Email inválido";
-            }
-
-            // Validar Telefone
-            if (string.IsNullOrWhiteSpace(PhoneBox.Text) && isValid)
-            {
-                isValid = false;
-                errorMessage = "Telefone é obrigatório";
-            }
-            else if (!Regex.IsMatch(PhoneBox.Text, @"^\(\d{2}\) \d{4,5}-\d{4}$") && isValid)
-            {
-                isValid = false;
-                errorMessage = "Telefone inválido. Use o formato (00) 00000-0000";
-            }
-
-            // Validar Data de Admissão
-            if (HireDatePicker.Date == null && isValid)
-            {
-                isValid = false;
-                errorMessage = "Data de admissão é obrigatória";
-            }
-
-            // Atualizar UI
-            ValidationInfoBar.Message = errorMessage;
+            this.IsPrimaryButtonEnabled = isValid;
             ValidationInfoBar.IsOpen = !isValid;
-            IsPrimaryButtonEnabled = isValid;
+
+            if (!isValid)
+            {
+                ValidationInfoBar.Message = "Preencha todos os campos obrigatórios";
+            }
+            else
+            {
+                ValidationInfoBar.IsOpen = false;
+            }
         }
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            Employee = new Employee
+            // Adiar o fechamento do diálogo até concluirmos a operação
+            args.Cancel = true;
+
+            try
             {
-                Name = NameBox.Text,
-                Role = (RoleBox.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                Email = EmailBox.Text,
-                Phone = PhoneBox.Text,
-                HireDate = HireDatePicker.Date?.Date ?? DateTime.Now
-            };
+                // Verificar permissão novamente
+                if (_currentUser != null && !await _authService.HasPermissionAsync(_currentUser, Permissions.AddEmployee))
+                {
+                    ValidationInfoBar.Message = "Você não tem permissão para adicionar funcionários";
+                    ValidationInfoBar.IsOpen = true;
+                    return;
+                }
+
+                // Criar DTO com os dados do formulário
+                var dto = new CreateEmployeeDto
+                {
+                    Name = NameBox.Text,
+                    Email = EmailBox.Text,
+                    Phone = PhoneBox.Text,
+                    Document = DocumentBox.Text,
+                    Address = AddressBox.Text,
+                    City = CityBox.Text,
+                    State = StateBox.Text,
+                    ZipCode = ZipCodeBox.Text,
+                    BirthDate = BirthDatePicker.Date.Value.DateTime,
+                    Username = UsernameBox.Text,
+                    Password = PasswordBox.Password,
+                    Role = (UserRole)RoleBox.SelectedItem,
+                    Position = PositionBox.Text,
+                    HireDate = HireDatePicker.Date.Value.DateTime
+                };
+
+                // Salvar funcionário
+                CreatedEmployee = await _employeeService.CreateEmployeeAsync(_currentUser, dto);
+
+                // Se chegarmos aqui, a operação foi bem-sucedida
+                this.Hide();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                ValidationInfoBar.Message = ex.Message;
+                ValidationInfoBar.IsOpen = true;
+            }
+            catch (InvalidOperationException ex)
+            {
+                ValidationInfoBar.Message = ex.Message;
+                ValidationInfoBar.IsOpen = true;
+            }
+            catch (Exception ex)
+            {
+                ValidationInfoBar.Message = $"Erro ao salvar: {ex.Message}";
+                ValidationInfoBar.IsOpen = true;
+            }
+        }
+
+        // Método para editar um funcionário existente
+        public void SetEmployeeForEdit(Employee employee)
+        {
+            if (employee == null) return;
+
+            _isEditMode = true;
+            Title = "Editar Funcionário";
+
+            // Preencher campos
+            NameBox.Text = employee.Name;
+            EmailBox.Text = employee.Email;
+            PhoneBox.Text = employee.Phone;
+            DocumentBox.Text = employee.Document;
+            AddressBox.Text = employee.Address;
+            CityBox.Text = employee.City;
+            StateBox.Text = employee.State;
+            ZipCodeBox.Text = employee.ZipCode;
+            BirthDatePicker.Date = employee.BirthDate;
+            UsernameBox.Text = employee.Username;
+            PasswordBox.Password = "********"; // Nunca mostrar a senha real
+            PasswordBox.IsEnabled = false; // Desabilitar campo de senha na edição
+            RoleBox.SelectedItem = employee.Role;
+            PositionBox.Text = employee.Position;
+            HireDatePicker.Date = employee.HireDate;
+
+            // Esconder campos de senha na edição
+            PasswordLabel.Visibility = Visibility.Collapsed;
+            PasswordBox.Visibility = Visibility.Collapsed;
         }
     }
 }

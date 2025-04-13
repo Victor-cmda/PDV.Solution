@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace PDV.Infrastructure.Migrations
+namespace PDV.Infrastructure.Migrations.PostgreSQL
 {
     /// <inheritdoc />
-    public partial class first : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,15 +17,34 @@ namespace PDV.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Role = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    Phone = table.Column<string>(type: "text", nullable: false),
+                    Username = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    PasswordSalt = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<int>(type: "integer", nullable: false),
+                    Position = table.Column<string>(type: "text", nullable: false),
                     HireDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    TerminationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    EmployeeCode = table.Column<string>(type: "text", nullable: false),
+                    Permissions = table.Column<List<string>>(type: "text[]", nullable: false),
+                    LastLoginDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    FailedLoginAttempts = table.Column<int>(type: "integer", nullable: false),
+                    IsLocked = table.Column<bool>(type: "boolean", nullable: false),
+                    ResetPasswordToken = table.Column<string>(type: "text", nullable: false),
+                    ResetPasswordTokenExpiry = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     LastSyncTimestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    Phone = table.Column<string>(type: "text", nullable: false),
+                    Document = table.Column<string>(type: "text", nullable: false),
+                    Address = table.Column<string>(type: "text", nullable: false),
+                    City = table.Column<string>(type: "text", nullable: false),
+                    State = table.Column<string>(type: "text", nullable: false),
+                    ZipCode = table.Column<string>(type: "text", nullable: false),
+                    BirthDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

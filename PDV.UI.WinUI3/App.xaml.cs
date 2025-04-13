@@ -15,12 +15,9 @@ using Windows.Storage;
 using PDV.Domain.Interfaces.PDV.Domain.Interfaces;
 using Microsoft.UI.Xaml.Controls;
 using Serilog.Extensions.Logging.File;
-
 using Serilog;
 using System.Diagnostics;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using PDV.UI.WinUI3.Views;
 
 namespace PDV.UI.WinUI3
 {
@@ -87,10 +84,14 @@ namespace PDV.UI.WinUI3
             services.AddDbContextFactory<RemoteDbContext>(options =>
                 options.UseNpgsql(postgresConnectionString));
 
+            // Registrar serviços da aplicação
             services.AddSingleton<IConnectivityService, ConnectivityService>();
             services.AddSingleton<ISyncNotificationService, SyncNotificationService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ISyncService, SyncService>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<EmployeeService>();
+            services.AddScoped<SeedService>();
 
             return services.BuildServiceProvider();
         }
@@ -104,8 +105,30 @@ namespace PDV.UI.WinUI3
             await EnsureLocalDatabaseAsync();
             await EnsureRemoteDatabaseAsync();
 
+            // Inicializar dados padrão (usuários admin e dev)
+            await InitializeDefaultDataAsync();
+
+            // Criar e ativar a janela principal
             MainWindow = new MainWindow();
             MainWindow.Activate();
+        }
+
+        private async Task InitializeDefaultDataAsync()
+        {
+            try
+            {
+                var seedService = Services.GetService<SeedService>();
+                if (seedService != null)
+                {
+                    await seedService.SeedDatabaseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Erro ao inicializar dados padrão: {ex.Message}");
+                var logger = Services.GetService<ILogger<App>>();
+                logger?.LogError(ex, "Erro ao inicializar dados padrão");
+            }
         }
 
         private async Task EnsureLocalDatabaseAsync()
@@ -134,12 +157,6 @@ namespace PDV.UI.WinUI3
 
                     // EnsureCreated cria o banco se ele não existir
                     await context.Database.EnsureCreatedAsync();
-
-                    // Se for um banco novo, podemos adicionar dados iniciais
-                    //if (newDatabase)
-                    //{
-                    //    await SeedInitialDataAsync(context);
-                    //}
                 }
 
                 // Registrar no log que o banco foi inicializado
@@ -198,7 +215,6 @@ namespace PDV.UI.WinUI3
                         if (canConnect)
                         {
                             // Verificar se o banco tem as tabelas necessárias
-                            // No PostgreSQL, podemos verificar a existência de tabelas específicas
                             var tableExists = await context.Database.ExecuteSqlRawAsync(
                                 @"SELECT COUNT(*) FROM information_schema.tables 
                         WHERE table_schema = 'public' AND table_name = 'Products'");
@@ -206,12 +222,7 @@ namespace PDV.UI.WinUI3
                             if (tableExists == 0)
                             {
                                 // Tabelas não existem, precisamos criá-las
-                                // Em produção, você provavelmente usaria migrações
-                                // mas para simplificar, usaremos EnsureCreated
                                 await context.Database.EnsureCreatedAsync();
-
-                                // Inserir dados iniciais no banco remoto
-                                //await SeedInitialDataAsync(context);
                             }
 
                             var logger = Services.GetService<ILogger<App>>();
@@ -226,8 +237,6 @@ namespace PDV.UI.WinUI3
                     {
                         var logger = Services.GetService<ILogger<App>>();
                         logger?.LogError(dbEx, "Erro ao verificar/criar o banco de dados remoto");
-
-                        // Não lançamos a exceção para o chamador para não impedir o aplicativo de iniciar
                     }
                 }
             }
@@ -238,7 +247,6 @@ namespace PDV.UI.WinUI3
                 logger?.LogError(ex, "Erro ao inicializar o banco de dados remoto");
             }
         }
-
 
         public static Window? MainWindow { get; private set; }
     }
