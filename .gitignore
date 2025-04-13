@@ -63,3 +63,4 @@ artifacts/
 *.pidb
 *.svclog
 *.scc
+/PDV.UI.WinUI3/pdv.db

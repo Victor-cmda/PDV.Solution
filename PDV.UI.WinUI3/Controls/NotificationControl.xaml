@@ -44,7 +44,7 @@
         MaxWidth="400"
         VerticalAlignment="Top"
         HorizontalAlignment="Right"
-        Margin="0,20,20,0"
+        Margin="0,60,10,0"
         Visibility="Collapsed">
 
         <StackPanel

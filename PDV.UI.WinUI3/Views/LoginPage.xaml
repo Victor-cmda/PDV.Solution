@@ -52,13 +52,13 @@
 
         <!-- Background decoration -->
         <Canvas HorizontalAlignment="Right" VerticalAlignment="Top"
-                Width="1000" Height="800" Opacity="0.05">
+                Width="800" Height="800" Opacity="0.05">
             <Path Canvas.Left="400" Canvas.Top="0"
                   Fill="{ThemeResource AccentFillColorDefaultBrush}"
                   Data="M0,0 C100,50 150,100 100,200 C50,300 100,400 200,450 C300,500 350,400 400,500 L400,0 Z"
                   Width="400" Height="500"/>
 
-            <Path Canvas.Left="600" Canvas.Top="100"
+            <Path Canvas.Left="600" Canvas.Top="0"
                   Fill="{ThemeResource AccentFillColorDefaultBrush}"
                   Data="M0,0 C50,100 100,50 150,100 C200,150 150,200 200,250 L200,0 Z"
                   Width="200" Height="250"/>
