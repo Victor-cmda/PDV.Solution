@@ -108,8 +108,9 @@ namespace PDV.UI.WinUI3
             // Inicializar dados padrão (usuários admin e dev)
             await InitializeDefaultDataAsync();
 
-            // Criar e ativar a janela principal
             MainWindow = new MainWindow();
+            
+            (MainWindow as MainWindow)?.NavigateToLoginPage();
             MainWindow.Activate();
         }
 

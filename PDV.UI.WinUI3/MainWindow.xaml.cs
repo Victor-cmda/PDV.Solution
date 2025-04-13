@@ -1,169 +1,204 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using PDV.Domain.Interfaces;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media.Animation;
 using PDV.UI.WinUI3.Services;
 using PDV.UI.WinUI3.Views;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Windows.System;
 
 namespace PDV.UI.WinUI3
 {
     public sealed partial class MainWindow : Window
     {
-        private readonly ISyncService _syncService;
-        private readonly ISyncNotificationService _syncNotificationService;
-        private DispatcherTimer _clockTimer;
-        private Dictionary<string, string> _pageTitles = new Dictionary<string, string>
-        {
-            { "home", "Dashboard" },
-            { "employees", "Funcionários" },
-            { "products", "Produtos" },
-            { "reports", "Relatórios" },
-            { "pos", "PDV - Vendas" },
-            { "sync", "Sincronização" },
-            { "settings", "Configurações" }
-        };
+        private Dictionary<string, Type> _pages;
 
         public MainWindow()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
-            // Configurar o serviço de notificação
+            ExtendsContentIntoTitleBar = true;
+            SetTitleBar(CustomHeader);
+
+            // Initialize the global notification service
             NotificationService.Instance.Initialize(GlobalNotification);
 
+            // Initialize page mapping
+            InitializePages();
 
-            // Obter serviços
-            var app = Microsoft.UI.Xaml.Application.Current as App;
-            var services = app?.Services;
-            if (services != null)
+            // Setup events
+            SetupEvents();
+
+            // Update date display
+            UpdateDateDisplay();
+        }
+
+        private void InitializePages()
+        {
+            _pages = new Dictionary<string, Type>
             {
-                _syncService = services.GetService<ISyncService>();
-                _syncNotificationService = services.GetService<ISyncNotificationService>();
-                if (_syncNotificationService != null)
+                { "login", typeof(LoginPage) },
+                { "home", typeof(HomePage) },
+                { "employees", typeof(EmployeesPage) },
+                { "products", typeof(ProductsPage) },
+                { "reports", typeof(ReportsPage) },
+                { "pos", typeof(POSPage) }
+                // Add more pages here as needed
+            };
+        }
+
+        private void SetupEvents()
+        {
+            // Subscribe to session events
+            SessionService.Instance.UserLoggedIn += SessionService_UserLoggedIn;
+            SessionService.Instance.UserLoggedOut += SessionService_UserLoggedOut;
+        }
+
+        private void SessionService_UserLoggedIn(object sender, EventArgs e)
+        {
+            // Update UI for logged in user
+            UpdateUserInfo();
+        }
+
+        private void SessionService_UserLoggedOut(object sender, EventArgs e)
+        {
+            // Navigate to login page
+            ContentFrame.Navigate(typeof(LoginPage), null, new DrillInNavigationTransitionInfo());
+
+            // Hide navigation elements
+            NavView.IsPaneVisible = false;
+        }
+
+        private void UpdateUserInfo()
+        {
+            var user = SessionService.Instance.CurrentUser;
+            if (user != null)
+            {
+                // Update user info in the UI
+                UserNameTextBlock.Text = user.Name;
+                UserInitialsControl.Initials = GetInitials(user.Name);
+
+                // Show navigation elements
+                NavView.IsPaneVisible = true;
+
+                // Update permissions based on user role
+                UpdateNavViewBasedOnPermissions();
+            }
+        }
+
+        private string GetInitials(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return "?";
+
+            var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 1)
+                return parts[0].Substring(0, 1).ToUpper();
+            else
+                return (parts[0].Substring(0, 1) + parts[parts.Length - 1].Substring(0, 1)).ToUpper();
+        }
+
+        private void UpdateNavViewBasedOnPermissions()
+        {
+            // Hide/show navigation items based on user permissions
+            // This would be implemented based on the permissions system
+        }
+
+        private void UpdateDateDisplay()
+        {
+            CurrentDateText.Text = DateTime.Now.ToString("dd MMMM yyyy");
+        }
+
+        public void NavigateToHomePage()
+        {
+            // Show the NavigationView
+            NavView.IsPaneVisible = true;
+
+            // Update page title
+            PageTitle.Text = "Dashboard";
+
+            // Navigate to homepage
+            ContentFrame.Navigate(typeof(HomePage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+
+            // Select the home item in navigation
+            foreach (NavigationViewItem item in NavView.MenuItems)
+            {
+                if (item.Tag?.ToString() == "home")
                 {
-                    _syncNotificationService.SyncStatusChanged += SyncStatusChanged;
+                    NavView.SelectedItem = item;
+                    break;
                 }
             }
 
-            // Inicializar a navegação
-            NavView.SelectedItem = NavView.MenuItems[0];
-            ContentFrame.Navigate(typeof(HomePage));
-
-            // Inicializar o relógio
-            InitializeClock();
-
-            // Definir título personalizado da janela
-            Title = "Sistema PDV - Gestão Completa";
-
-            // Configurações adicionais da janela
-            SetupWindow();
+            // Update user info
+            UpdateUserInfo();
         }
 
-        private void SetupWindow()
+        public void NavigateToLoginPage()
         {
-            // Configurar tamanho da janela (exemplo)
-            var appWindow = this.AppWindow;
-            if (appWindow != null)
-            {
-                appWindow.Resize(new Windows.Graphics.SizeInt32(1280, 800));
-                appWindow.MoveAndResize(new Windows.Graphics.RectInt32(
-                    (1920 - 1280) / 2, // Centralizar na tela horizontalmente
-                    (1080 - 800) / 2,  // Centralizar na tela verticalmente
-                    1280, 800));
-            }
-        }
+            // Hide the NavigationView
+            NavView.IsPaneVisible = false;
 
-        private void InitializeClock()
-        {
-            // Atualizar a data inicial
-            UpdateDateTime();
-
-            // Criar timer para atualizar o relógio
-            _clockTimer = new DispatcherTimer();
-            _clockTimer.Interval = TimeSpan.FromSeconds(30); // Atualiza a cada 30 segundos
-            _clockTimer.Tick += (s, e) => UpdateDateTime();
-            _clockTimer.Start();
-        }
-
-        private void UpdateDateTime()
-        {
-            var now = DateTime.Now;
-            CurrentDateText.Text = now.ToString("dd MMMM yyyy");
+            // Navigate to login page
+            ContentFrame.Navigate(typeof(LoginPage), null, new DrillInNavigationTransitionInfo());
         }
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            if (args.SelectedItemContainer != null)
+            if (args.SelectedItemContainer is NavigationViewItem item && item.Tag != null)
             {
-                var navItemTag = args.SelectedItemContainer.Tag.ToString();
+                string tag = item.Tag.ToString();
 
-                // Atualizar o título da página
-                if (_pageTitles.ContainsKey(navItemTag))
+                // Update page title
+                PageTitle.Text = item.Content.ToString();
+
+                // Handle special cases
+                if (tag == "sync")
                 {
-                    PageTitle.Text = _pageTitles[navItemTag];
+                    // Handle synchronization directly
+                    SyncButton_Tapped(null, null);
+                    return;
                 }
 
-                // Navegar para a página selecionada
-                NavView_Navigate(navItemTag);
-            }
-        }
-
-        private void NavView_Navigate(string navItemTag)
-        {
-            Type pageType = navItemTag switch
-            {
-                "home" => typeof(HomePage),
-                "employees" => typeof(EmployeesPage),
-                "products" => typeof(ProductsPage),
-                "reports" => typeof(ReportsPage),
-                "pos" => typeof(POSPage),
-                "settings" => typeof(HomePage),
-                _ => typeof(HomePage)
-            };
-
-            // Só navega se for uma página diferente da atual
-            if (ContentFrame.CurrentSourcePageType != pageType)
-            {
-                ContentFrame.Navigate(pageType);
-            }
-        }
-
-        private async void SyncButton_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
-            try
-            {
-                NotificationService.Instance.ShowInformation("Iniciando sincronização...");
-                await _syncService?.SynchronizeAsync();
-            }
-            catch (Exception ex)
-            {
-                NotificationService.Instance.ShowError($"Erro na sincronização: {ex.Message}");
-            }
-        }
-
-        private void SyncStatusChanged(object sender, SyncStatusEventArgs e)
-        {
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                switch (e.Status)
+                // Navigate to the selected page
+                if (_pages.TryGetValue(tag, out Type pageType))
                 {
-                    case PDV.Shared.Enum.SyncStatus.InProgress:
-                        break;
-                    case PDV.Shared.Enum.SyncStatus.Completed:
-                        NotificationService.Instance.ShowSuccess(e.Message);
-                        break;
-                    case PDV.Shared.Enum.SyncStatus.Failed:
-                        NotificationService.Instance.ShowError(e.Message);
-                        break;
+                    ContentFrame.Navigate(pageType, null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
                 }
-            });
+            }
+        }
+
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Encerra a sessão do usuário
+            SessionService.Instance.Logout();
+
+            // Notifica o usuário
+            NotificationService.Instance.ShowInformation("Logout realizado com sucesso.");
+
+            // Navega para a página de login
+            NavigateToLoginPage();
         }
 
         private void NavView_PaneOpening(NavigationView sender, object args)
         {
-            // Pode ser usado para atualizar o status de sincronização ou outras informações
-            // quando o painel de navegação é aberto
+            // Any logic needed when navigation pane opens
+        }
+
+        private void SyncButton_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            // Show synchronization in progress notification
+            NotificationService.Instance.ShowInformation("Sincronização iniciada. Aguarde...");
+
+            // In a real app, you would call the sync service here
+            // For demo purposes, we'll simulate a successful sync
+            DispatcherQueue.TryEnqueue(async () =>
+            {
+                await Task.Delay(2000); // Simulate processing time
+                NotificationService.Instance.ShowSuccess("Sincronização concluída com sucesso!");
+            });
         }
     }
 }

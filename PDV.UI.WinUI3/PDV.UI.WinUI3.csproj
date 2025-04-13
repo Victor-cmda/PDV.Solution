@@ -44,6 +44,7 @@
     <None Remove="Views\EmployeeDialog.xaml" />
     <None Remove="Views\EmployeesPage.xaml" />
     <None Remove="Views\HomePage.xaml" />
+    <None Remove="Views\LoginPage.xaml" />
     <None Remove="Views\POSPage.xaml" />
     <None Remove="Views\ProductDialog.xaml" />
     <None Remove="Views\ProductsPage.xaml" />
@@ -143,6 +144,9 @@
     <None Update="Assets\empty-state.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="Views\LoginPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Controls\NotificationControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
