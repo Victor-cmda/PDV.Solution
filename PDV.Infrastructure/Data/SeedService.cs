@@ -89,8 +89,16 @@ namespace PDV.Infrastructure.Data
                     BirthDate = new DateTime(1990, 1, 1),
                     EmployeeCode = "DEV001",
                     IsActive = true,
+                    ResetPasswordToken = "", // Initialize with empty string to satisfy NOT NULL constraint
                     CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
+                    UpdatedAt = DateTime.Now,
+                    Document = "00000000000", // CPF placeholder
+                    Address = "",
+                    City = "",
+                    State = "",
+                    ZipCode = "",
+                    DeletedAt = DateTime.MinValue, // Initialize with default value
+                    Id = Guid.NewGuid() // Generate new ID
                 };
 
                 // Atribuir todas as permissões disponíveis
@@ -133,8 +141,16 @@ namespace PDV.Infrastructure.Data
                     BirthDate = new DateTime(1990, 1, 1),
                     EmployeeCode = "ADM001",
                     IsActive = true,
+                    ResetPasswordToken = "", // Initialize with empty string to satisfy NOT NULL constraint
                     CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
+                    UpdatedAt = DateTime.Now,
+                    Document = "11111111111", // CPF placeholder
+                    Address = "",
+                    City = "",
+                    State = "",
+                    ZipCode = "",
+                    DeletedAt = DateTime.MinValue, // Initialize with default value
+                    Id = Guid.NewGuid() // Generate new ID
                 };
 
                 // Atribuir permissões de administrador
