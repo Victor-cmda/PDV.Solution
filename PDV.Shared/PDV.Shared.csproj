@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Helpers\" />
     <Folder Include="Extensions\" />
     <Folder Include="Constants\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
 
 </Project>

@@ -97,7 +97,6 @@ namespace PDV.Infrastructure.Data
                     City = "",
                     State = "",
                     ZipCode = "",
-                    DeletedAt = DateTime.MinValue, // Initialize with default value
                     Id = Guid.NewGuid() // Generate new ID
                 };
 
@@ -144,12 +143,11 @@ namespace PDV.Infrastructure.Data
                     ResetPasswordToken = "", // Initialize with empty string to satisfy NOT NULL constraint
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
-                    Document = "11111111111", // CPF placeholder
+                    Document = "11111111111",
                     Address = "",
                     City = "",
                     State = "",
                     ZipCode = "",
-                    DeletedAt = DateTime.MinValue, // Initialize with default value
                     Id = Guid.NewGuid() // Generate new ID
                 };
 

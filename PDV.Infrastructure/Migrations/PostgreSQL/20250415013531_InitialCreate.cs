@@ -32,9 +32,9 @@ namespace PDV.Infrastructure.Migrations.PostgreSQL
                     IsLocked = table.Column<bool>(type: "boolean", nullable: false),
                     ResetPasswordToken = table.Column<string>(type: "text", nullable: false),
                     ResetPasswordTokenExpiry = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    LastSyncTimestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastSyncTimestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
@@ -63,9 +63,9 @@ namespace PDV.Infrastructure.Migrations.PostgreSQL
                     Stock = table.Column<int>(type: "integer", nullable: false),
                     Supplier = table.Column<string>(type: "text", nullable: false),
                     LastUpdate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastSyncTimestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastSyncTimestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>

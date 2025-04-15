@@ -30,7 +30,7 @@ namespace PDV.Infrastructure.Data
                 if (entry.State == EntityState.Added)
                 {
                     entry.Property("SyncState").CurrentValue = "New";
-                    entry.Property("LastSyncTimestamp").CurrentValue = DateTime.MinValue;
+                    //entry.Property("LastSyncTimestamp").CurrentValue = DateTime.MinValue;
                 }
                 else if (entry.State == EntityState.Modified)
                 {

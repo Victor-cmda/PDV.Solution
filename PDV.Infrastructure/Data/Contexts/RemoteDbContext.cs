@@ -1,21 +1,45 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore;
 using PDV.Domain.Entities;
 
-namespace PDV.Infrastructure.Data.Contexts
+public class RemoteDbContext : DbContext
 {
-    public class RemoteDbContext : DbContext
+    public RemoteDbContext(DbContextOptions<RemoteDbContext> options) : base(options) { }
+
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Employee> Employees { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        public RemoteDbContext(DbContextOptions<RemoteDbContext> options) : base(options) { }
+        base.OnModelCreating(modelBuilder);
 
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Employee> Employees { get; set; }
+        // Configurar Role como int
+        modelBuilder.Entity<Employee>()
+            .Property(e => e.Role)
+            .HasConversion<int>();
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        // Configurar todas as propriedades DateTime para usar conversão de UTC
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Employee>()
-                .Property(e => e.Role)
-                .HasConversion<int>();
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                {
+                    // Adicionar conversor para garantir que somente datas UTC sejam enviadas ao PostgreSQL
+                    property.SetValueConverter(new UtcValueConverter());
+                }
+            }
         }
+    }
+}
+
+// Conversor para garantir que todas as datas sejam UTC
+public class UtcValueConverter : ValueConverter<DateTime, DateTime>
+{
+    public UtcValueConverter()
+        : base(
+            v => v.Kind == DateTimeKind.Utc ? v : DateTime.SpecifyKind(v, DateTimeKind.Utc),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc))
+    {
     }
 }

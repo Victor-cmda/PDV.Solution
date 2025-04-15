@@ -1,13 +1,16 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Animation;
+using PDV.Domain.Interfaces;
+using PDV.Domain.Interfaces.PDV.Domain.Interfaces;
+using PDV.Shared.Enum;
 using PDV.UI.WinUI3.Services;
 using PDV.UI.WinUI3.Views;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Windows.System;
 
 namespace PDV.UI.WinUI3
 {
@@ -15,12 +18,36 @@ namespace PDV.UI.WinUI3
     {
         private Dictionary<string, Type> _pages;
 
+        // Serviços para sincronização
+        private readonly ISyncService _syncService;
+        private readonly IConnectivityService _connectivityService;
+        private readonly ISyncNotificationService _syncNotificationService;
+        private bool _isSynchronizing = false;
+
         public MainWindow()
         {
             InitializeComponent();
             ExtendsContentIntoTitleBar = true;
             SetTitleBar(CustomHeader);
+
+            // Configurar o serviço de notificação
             NotificationService.Instance.Initialize(GlobalNotification);
+
+            // Obter serviços de sincronização
+            var app = Microsoft.UI.Xaml.Application.Current as App;
+            if (app?.Services != null)
+            {
+                _syncService = app.Services.GetService<ISyncService>();
+                _connectivityService = app.Services.GetService<IConnectivityService>();
+                _syncNotificationService = app.Services.GetService<ISyncNotificationService>();
+
+                // Registrar para eventos de sincronização
+                if (_syncNotificationService != null)
+                {
+                    _syncNotificationService.SyncStatusChanged += SyncNotificationService_SyncStatusChanged;
+                }
+            }
+
             InitializePages();
             SetupEvents();
             UpdateDateDisplay();
@@ -93,6 +120,7 @@ namespace PDV.UI.WinUI3
 
         private void UpdateDateDisplay()
         {
+            // Implementação para atualizar a data/hora atual
         }
 
         public void NavigateToHomePage()
@@ -154,16 +182,71 @@ namespace PDV.UI.WinUI3
 
         private void NavView_PaneOpening(NavigationView sender, object args)
         {
-            // Any logic needed when navigation pane opens
+            // Qualquer lógica necessária quando o painel de navegação é aberto
         }
 
-        private void SyncButton_Tapped(object sender, TappedRoutedEventArgs e)
+        private async void SyncButton_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            NotificationService.Instance.ShowInformation("Sincronização iniciada. Aguarde...");
-
-            DispatcherQueue.TryEnqueue(async () =>
+            // Verificar se já está sincronizando
+            if (_isSynchronizing)
             {
-                NotificationService.Instance.ShowSuccess("Sincronização concluída com sucesso!");
+                NotificationService.Instance.ShowInformation("A sincronização já está em andamento.");
+                return;
+            }
+
+            // Verificar se o serviço está disponível
+            if (_syncService == null)
+            {
+                NotificationService.Instance.ShowError("Serviço de sincronização não disponível.");
+                return;
+            }
+
+            try
+            {
+                _isSynchronizing = true;
+                NotificationService.Instance.ShowInformation("Iniciando sincronização...");
+
+                // Verificar conectividade
+                if (_connectivityService != null)
+                {
+                    await _connectivityService.CheckAndUpdateConnectivityAsync();
+                    if (!_connectivityService.IsOnline())
+                    {
+                        NotificationService.Instance.ShowWarning("Não é possível sincronizar, dispositivo está offline.");
+                        _isSynchronizing = false;
+                        return;
+                    }
+                }
+
+                // Executar sincronização
+                await _syncService.SynchronizeAsync();
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Instance.ShowError($"Erro na sincronização: {ex.Message}");
+            }
+            finally
+            {
+                _isSynchronizing = false;
+            }
+        }
+
+        private void SyncNotificationService_SyncStatusChanged(object sender, SyncStatusEventArgs e)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                switch (e.Status)
+                {
+                    case SyncStatus.InProgress:
+                        NotificationService.Instance.ShowInformation(e.Message);
+                        break;
+                    case SyncStatus.Completed:
+                        NotificationService.Instance.ShowSuccess(e.Message);
+                        break;
+                    case SyncStatus.Failed:
+                        NotificationService.Instance.ShowError(e.Message);
+                        break;
+                }
             });
         }
     }

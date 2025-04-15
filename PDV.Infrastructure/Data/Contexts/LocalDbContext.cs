@@ -18,14 +18,10 @@ namespace PDV.Infrastructure.Data.Contexts
                 .Property(e => e.Role)
                 .HasConversion<int>();
 
-            modelBuilder.Entity<Product>().Property<DateTime>("LastSyncTimestamp")
-                .HasDefaultValue(DateTime.MinValue);
             modelBuilder.Entity<Product>().Property<string>("SyncState")
                 .HasMaxLength(20)
                 .HasDefaultValue("Unchanged");
 
-            modelBuilder.Entity<Employee>().Property<DateTime>("LastSyncTimestamp")
-                .HasDefaultValue(DateTime.MinValue);
             modelBuilder.Entity<Employee>().Property<string>("SyncState")
                 .HasMaxLength(20)
                 .HasDefaultValue("Unchanged");

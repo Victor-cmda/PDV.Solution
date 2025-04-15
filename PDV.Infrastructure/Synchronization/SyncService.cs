@@ -83,10 +83,15 @@ namespace PDV.Infrastructure.Synchronization
                 .Where(e => EF.Property<string>(e, "SyncState") != "Unchanged")
                 .ToListAsync();
 
+            _logger.LogInformation($"Encontradas {localEntities.Count} entidades locais para sincronizar");
+
             foreach (var entity in localEntities)
             {
-                var syncState = EF.Property<string>(entity, "SyncState");
+                var entityEntry = localContext.Entry(entity);
+                var syncState = entityEntry.Property<string>("SyncState").CurrentValue;
                 var entityId = GetEntityId(entity);
+
+                ConvertAllDateTimesToUtc(entity);
 
                 if (entityId != null)
                 {
@@ -122,18 +127,36 @@ namespace PDV.Infrastructure.Synchronization
                 localContext.Entry(entity).Property("LastSyncTimestamp").CurrentValue = DateTime.UtcNow;
             }
 
-            // Salvar mudanças no servidor
-            await remoteContext.SaveChangesAsync();
+            try
+            {
+                await remoteContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Registrar a exceção completa, incluindo exceções internas
+                var fullMessage = ex.ToString();
+                _logger.LogError($"Erro detalhado ao salvar: {fullMessage}");
+                throw;
+            }
 
             // Buscar entidades novas/modificadas do servidor remoto
             DateTime lastSync = DateTime.MinValue;
-            var lastSyncQuery = localContext.Set<T>()
-                .Select(e => EF.Property<DateTime>(e, "LastSyncTimestamp"));
 
-            if (await lastSyncQuery.AnyAsync())
+            // Verificar se há algum registro com timestamp não nulo
+            var maxTimestampQuery = localContext.Set<T>()
+                .Where(e => EF.Property<DateTime?>(e, "LastSyncTimestamp") != null)
+                .Select(e => EF.Property<DateTime?>(e, "LastSyncTimestamp"));
+
+            if (await maxTimestampQuery.AnyAsync())
             {
-                lastSync = await lastSyncQuery.MaxAsync();
+                // Se houver pelo menos um registro com timestamp não nulo, pegamos o máximo
+                var maxTimestamp = await maxTimestampQuery.MaxAsync();
+                if (maxTimestamp.HasValue)
+                {
+                    lastSync = maxTimestamp.Value;
+                }
             }
+
 
             // Determinar quais entidades buscar do servidor (simplificado)
             var remoteEntities = new List<T>();
@@ -171,7 +194,8 @@ namespace PDV.Infrastructure.Synchronization
                     }
                     else
                     {
-                        var localSyncState = EF.Property<string>(localEntity, "SyncState");
+                        // Corrigido: usar Entry().Property() em vez de EF.Property()
+                        var localSyncState = localContext.Entry(localEntity).Property<string>("SyncState").CurrentValue;
 
                         // Só atualiza se não foi modificado localmente
                         if (localSyncState == "Unchanged")
@@ -187,17 +211,46 @@ namespace PDV.Infrastructure.Synchronization
             await localContext.SaveChangesAsync();
         }
 
-        private int? GetEntityId(object entity)
+        private Guid? GetEntityId(object entity)
         {
-            // Método simples para obter o ID da entidade
+            // Método para obter o ID da entidade (Guid)
             var idProperty = entity.GetType().GetProperty("Id");
-            return idProperty?.GetValue(entity) as int?;
+            return idProperty?.GetValue(entity) as Guid?;
         }
 
-        private async Task<T> FindEntityByIdAsync<T>(DbSet<T> dbSet, int id) where T : class
+        private async Task<T> FindEntityByIdAsync<T>(DbSet<T> dbSet, Guid id) where T : class
         {
-            // Método para encontrar entidade pelo ID
-            return await dbSet.FindAsync(id);
+            // Usando expressão lambda para encontrar a entidade pelo ID
+            return await dbSet.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
+        }
+
+        private void ConvertAllDateTimesToUtc(object entity)
+        {
+            var type = entity.GetType();
+            var properties = type.GetProperties()
+                .Where(p => p.PropertyType == typeof(DateTime) || p.PropertyType == typeof(DateTime?));
+
+            foreach (var property in properties)
+            {
+                if (property.PropertyType == typeof(DateTime))
+                {
+                    var value = (DateTime)property.GetValue(entity);
+                    if (value.Kind != DateTimeKind.Utc)
+                    {
+                        // Se não for UTC, especificar como UTC sem alterar o valor
+                        property.SetValue(entity, DateTime.SpecifyKind(value, DateTimeKind.Utc));
+                    }
+                }
+                else if (property.PropertyType == typeof(DateTime?))
+                {
+                    var value = (DateTime?)property.GetValue(entity);
+                    if (value.HasValue && value.Value.Kind != DateTimeKind.Utc)
+                    {
+                        // Se não for UTC, especificar como UTC sem alterar o valor
+                        property.SetValue(entity, DateTime.SpecifyKind(value.Value, DateTimeKind.Utc));
+                    }
+                }
+            }
         }
     }
 }

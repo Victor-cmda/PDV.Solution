@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using PDV.Infrastructure.Data.Contexts;
 
 #nullable disable
 
@@ -43,7 +42,7 @@ namespace PDV.Infrastructure.Migrations.PostgreSQL
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Document")
@@ -73,7 +72,7 @@ namespace PDV.Infrastructure.Migrations.PostgreSQL
                     b.Property<DateTime?>("LastLoginDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("LastSyncTimestamp")
+                    b.Property<DateTime?>("LastSyncTimestamp")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
@@ -150,10 +149,10 @@ namespace PDV.Infrastructure.Migrations.PostgreSQL
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("LastSyncTimestamp")
+                    b.Property<DateTime?>("LastSyncTimestamp")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("LastUpdate")
