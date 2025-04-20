@@ -64,6 +64,7 @@
                             Margin="16,0,0,0">
                     <FontIcon Glyph="&#xE8F1;"
                               FontSize="20"
+                              FontFamily="Segoe MDL2 Assets"
                               Foreground="White"/>
                     <TextBlock Text="SISTEMA PDV"
                                FontWeight="SemiBold"
@@ -112,6 +113,7 @@
                                        VerticalAlignment="Center"/>
                             <FontIcon Glyph="&#xE70D;"
                                       FontSize="12"
+                                      FontFamily="Segoe MDL2 Assets"
                                       Foreground="White"/>
                         </StackPanel>
                         <Button.Flyout>
@@ -157,31 +159,31 @@
                 <NavigationView.MenuItems>
                     <NavigationViewItem Content="Dashboard" Tag="home" Style="{StaticResource NavViewItemStyle}">
                         <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE80F;"/>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE80F;"/>
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
 
                     <NavigationViewItem Content="Funcionários" Tag="employees" Style="{StaticResource NavViewItemStyle}">
                         <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE716;"/>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE716;"/>
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
 
                     <NavigationViewItem Content="Produtos" Tag="products" Style="{StaticResource NavViewItemStyle}">
                         <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xECA5;"/>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xECA5;"/>
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
 
                     <NavigationViewItem Content="Relatórios" Tag="reports" Style="{StaticResource NavViewItemStyle}">
                         <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE9F9;"/>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE9F9;"/>
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
 
                     <NavigationViewItem Content="PDV Vendas" Tag="pos" Style="{StaticResource NavViewItemStyle}">
                         <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xEDC4;"/>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE9F9;"/>
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
                 </NavigationView.MenuItems>
@@ -214,6 +216,7 @@
                                     Tapped="SyncButton_Tapped">
                                 <FontIcon Glyph="&#xE895;"
                                           FontSize="14"
+                                          FontFamily="Segoe MDL2 Assets"
                                           Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
                             </Button>
                         </Grid>
@@ -223,14 +226,14 @@
                                             Style="{StaticResource NavViewItemStyle}"
                                             Tapped="SyncButton_Tapped">
                             <NavigationViewItem.Icon>
-                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE895;"/>
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE895;"/>
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
 
                         <NavigationViewItem Tag="settings"
                                             Style="{StaticResource NavViewItemStyle}">
                             <NavigationViewItem.Icon>
-                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE713;"/>
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;"/>
                             </NavigationViewItem.Icon>
                             <NavigationViewItem.Content>
                                 <TextBlock Text="Configurações"/>

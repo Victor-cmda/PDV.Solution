@@ -1,0 +1,173 @@
+<Page
+    x:Class="PDV.UI.WinUI3.Views.Forms.EmployeeFormPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PDV.UI.WinUI3.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Cabeçalho -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock x:Name="TitleText" 
+                       Text="Adicionar Funcionário"
+                       Style="{ThemeResource TitleLargeTextBlockStyle}"/>
+            <TextBlock Text="Preencha os dados do funcionário"
+                       Style="{ThemeResource BodyTextBlockStyle}"
+                       Opacity="0.7"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- Conteúdo do Formulário -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto" 
+                      VerticalScrollMode="Auto">
+            <StackPanel Spacing="16">
+                <!-- Seção de Informações Pessoais -->
+                <TextBlock Text="Informações Pessoais"
+                           Style="{ThemeResource SubtitleTextBlockStyle}"
+                           Margin="0,0,0,8"/>
+
+                <TextBox x:Name="NameBox"
+                         Header="Nome *"
+                         PlaceholderText="Digite o nome completo"
+                         TextChanged="ValidateInput"/>
+
+                <TextBox x:Name="EmailBox"
+                         Header="Email *"
+                         PlaceholderText="Digite o email"
+                         TextChanged="ValidateInput"/>
+
+                <TextBox x:Name="PhoneBox"
+                         Header="Telefone *"
+                         PlaceholderText="(00) 00000-0000"
+                         TextChanged="ValidateInput"
+                         MaxLength="15"/>
+
+                <TextBox x:Name="DocumentBox"
+                         Header="CPF/CNPJ *"
+                         PlaceholderText="Digite o CPF ou CNPJ"
+                         TextChanged="ValidateInput"/>
+
+                <CalendarDatePicker x:Name="BirthDatePicker"
+                                    Header="Data de Nascimento *"
+                                    PlaceholderText="Selecione a data"
+                                    DateChanged="ValidateInput"/>
+
+                <!-- Seção de Endereço -->
+                <TextBlock Text="Endereço"
+                           Style="{ThemeResource SubtitleTextBlockStyle}"
+                           Margin="0,16,0,8"/>
+
+                <TextBox x:Name="AddressBox"
+                         Header="Endereço"
+                         PlaceholderText="Digite o endereço"
+                         TextChanged="ValidateInput"/>
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox x:Name="CityBox"
+                             Grid.Column="0"
+                             Header="Cidade"
+                             PlaceholderText="Digite a cidade"
+                             TextChanged="ValidateInput"/>
+
+                    <TextBox x:Name="StateBox"
+                             Grid.Column="1"
+                             Header="Estado"
+                             PlaceholderText="UF"
+                             TextChanged="ValidateInput"
+                             MaxLength="2"/>
+                </Grid>
+
+                <TextBox x:Name="ZipCodeBox"
+                         Header="CEP"
+                         PlaceholderText="00000-000"
+                         TextChanged="ValidateInput"
+                         MaxLength="9"/>
+
+                <!-- Seção de Acesso ao Sistema -->
+                <TextBlock Text="Acesso ao Sistema"
+                           Style="{ThemeResource SubtitleTextBlockStyle}"
+                           Margin="0,16,0,8"/>
+
+                <TextBox x:Name="UsernameBox"
+                         Header="Nome de Usuário *"
+                         PlaceholderText="Digite o nome de usuário"
+                         TextChanged="ValidateInput"/>
+
+                <PasswordBox x:Name="PasswordBox"
+                             Header="Senha *"
+                             PlaceholderText="Digite a senha"
+                             PasswordChanged="ValidateInput"/>
+
+                <!-- Seção de Dados Funcionais -->
+                <TextBlock Text="Dados Funcionais"
+                           Style="{ThemeResource SubtitleTextBlockStyle}"
+                           Margin="0,16,0,8"/>
+
+                <ComboBox x:Name="RoleBox"
+                          Header="Papel/Cargo *"
+                          PlaceholderText="Selecione o papel no sistema"
+                          SelectionChanged="ValidateInput"
+                          Width="250"/>
+
+                <TextBox x:Name="PositionBox"
+                         Header="Função *"
+                         PlaceholderText="Digite a função/cargo"
+                         TextChanged="ValidateInput"/>
+
+                <CalendarDatePicker x:Name="HireDatePicker"
+                                    Header="Data de Admissão *"
+                                    PlaceholderText="Selecione a data"
+                                    DateChanged="ValidateInput"/>
+
+                <!-- Mensagem de erro -->
+                <InfoBar x:Name="ValidationInfoBar"
+                         IsOpen="False"
+                         Severity="Error"
+                         IsClosable="False"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Botões de Ação -->
+        <Grid Grid.Row="2" Margin="0,24,0,0" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Botão à esquerda (opcional) -->
+            <HyperlinkButton Grid.Column="0" 
+                             Content="Cancelar e voltar" 
+                             HorizontalAlignment="Left"
+                             Click="CancelButton_Click"/>
+
+            <!-- Botões à direita -->
+            <Button Grid.Column="1" 
+                    Content="Cancelar" 
+                    Click="CancelButton_Click"
+                    Width="120"/>
+
+            <Button Grid.Column="2" 
+                    x:Name="SaveButton"
+                    Content="Salvar" 
+                    Click="SaveButton_Click"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    Width="120"
+                    IsEnabled="False"/>
+        </Grid>
+    </Grid>
+</Page>
