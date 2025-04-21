@@ -1,173 +1,522 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="PDV.UI.WinUI3.Views.Forms.EmployeeFormPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PDV.UI.WinUI3.Views"
+    xmlns:controls="using:PDV.UI.WinUI3.Controls"
+    xmlns:converters="using:PDV.UI.WinUI3.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    NavigationCacheMode="Disabled">
 
-    <Grid Padding="24">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:BoolToVisibilityInverseConverter x:Key="BoolToVisibilityInverseConverter"/>
+        <converters:RoleToColorConverter x:Key="RoleToColorConverter"/>
+
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <Style x:Key="CardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{ThemeResource ControlFillColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="MinWidth" Value="120"/>
+        </Style>
+
+        <Style x:Key="PrimaryActionButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}"/>
+            <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+        </Style>
+
+        <!-- Estilos para os campos de entrada -->
+        <Style x:Key="FormTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Margin" Value="0,4,0,8"/>
+        </Style>
+
+        <Style x:Key="FormComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Margin" Value="0,4,0,8"/>
+        </Style>
+
+        <Style x:Key="FormCalendarDatePickerStyle" TargetType="CalendarDatePicker">
+            <Setter Property="Margin" Value="0,4,0,8"/>
+        </Style>
+
+        <Style x:Key="FormPasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Margin" Value="0,4,0,8"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Cabeçalho -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,24">
-            <TextBlock x:Name="TitleText" 
-                       Text="Adicionar Funcionário"
-                       Style="{ThemeResource TitleLargeTextBlockStyle}"/>
-            <TextBlock Text="Preencha os dados do funcionário"
-                       Style="{ThemeResource BodyTextBlockStyle}"
-                       Opacity="0.7"
-                       Margin="0,4,0,0"/>
-        </StackPanel>
-
-        <!-- Conteúdo do Formulário -->
-        <ScrollViewer Grid.Row="1" 
-                      VerticalScrollBarVisibility="Auto" 
-                      VerticalScrollMode="Auto">
-            <StackPanel Spacing="16">
-                <!-- Seção de Informações Pessoais -->
-                <TextBlock Text="Informações Pessoais"
-                           Style="{ThemeResource SubtitleTextBlockStyle}"
-                           Margin="0,0,0,8"/>
-
-                <TextBox x:Name="NameBox"
-                         Header="Nome *"
-                         PlaceholderText="Digite o nome completo"
-                         TextChanged="ValidateInput"/>
-
-                <TextBox x:Name="EmailBox"
-                         Header="Email *"
-                         PlaceholderText="Digite o email"
-                         TextChanged="ValidateInput"/>
-
-                <TextBox x:Name="PhoneBox"
-                         Header="Telefone *"
-                         PlaceholderText="(00) 00000-0000"
-                         TextChanged="ValidateInput"
-                         MaxLength="15"/>
-
-                <TextBox x:Name="DocumentBox"
-                         Header="CPF/CNPJ *"
-                         PlaceholderText="Digite o CPF ou CNPJ"
-                         TextChanged="ValidateInput"/>
-
-                <CalendarDatePicker x:Name="BirthDatePicker"
-                                    Header="Data de Nascimento *"
-                                    PlaceholderText="Selecione a data"
-                                    DateChanged="ValidateInput"/>
-
-                <!-- Seção de Endereço -->
-                <TextBlock Text="Endereço"
-                           Style="{ThemeResource SubtitleTextBlockStyle}"
-                           Margin="0,16,0,8"/>
-
-                <TextBox x:Name="AddressBox"
-                         Header="Endereço"
-                         PlaceholderText="Digite o endereço"
-                         TextChanged="ValidateInput"/>
-
-                <Grid ColumnSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBox x:Name="CityBox"
-                             Grid.Column="0"
-                             Header="Cidade"
-                             PlaceholderText="Digite a cidade"
-                             TextChanged="ValidateInput"/>
-
-                    <TextBox x:Name="StateBox"
-                             Grid.Column="1"
-                             Header="Estado"
-                             PlaceholderText="UF"
-                             TextChanged="ValidateInput"
-                             MaxLength="2"/>
-                </Grid>
-
-                <TextBox x:Name="ZipCodeBox"
-                         Header="CEP"
-                         PlaceholderText="00000-000"
-                         TextChanged="ValidateInput"
-                         MaxLength="9"/>
-
-                <!-- Seção de Acesso ao Sistema -->
-                <TextBlock Text="Acesso ao Sistema"
-                           Style="{ThemeResource SubtitleTextBlockStyle}"
-                           Margin="0,16,0,8"/>
-
-                <TextBox x:Name="UsernameBox"
-                         Header="Nome de Usuário *"
-                         PlaceholderText="Digite o nome de usuário"
-                         TextChanged="ValidateInput"/>
-
-                <PasswordBox x:Name="PasswordBox"
-                             Header="Senha *"
-                             PlaceholderText="Digite a senha"
-                             PasswordChanged="ValidateInput"/>
-
-                <!-- Seção de Dados Funcionais -->
-                <TextBlock Text="Dados Funcionais"
-                           Style="{ThemeResource SubtitleTextBlockStyle}"
-                           Margin="0,16,0,8"/>
-
-                <ComboBox x:Name="RoleBox"
-                          Header="Papel/Cargo *"
-                          PlaceholderText="Selecione o papel no sistema"
-                          SelectionChanged="ValidateInput"
-                          Width="250"/>
-
-                <TextBox x:Name="PositionBox"
-                         Header="Função *"
-                         PlaceholderText="Digite a função/cargo"
-                         TextChanged="ValidateInput"/>
-
-                <CalendarDatePicker x:Name="HireDatePicker"
-                                    Header="Data de Admissão *"
-                                    PlaceholderText="Selecione a data"
-                                    DateChanged="ValidateInput"/>
-
-                <!-- Mensagem de erro -->
-                <InfoBar x:Name="ValidationInfoBar"
-                         IsOpen="False"
-                         Severity="Error"
-                         IsClosable="False"/>
-            </StackPanel>
-        </ScrollViewer>
-
-        <!-- Botões de Ação -->
-        <Grid Grid.Row="2" Margin="0,24,0,0" ColumnSpacing="16">
+        <Grid Grid.Row="0" 
+              Background="{ThemeResource LayerFillColorDefaultBrush}" 
+              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+              BorderThickness="0,0,0,1" 
+              Padding="24,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Botão à esquerda (opcional) -->
-            <HyperlinkButton Grid.Column="0" 
-                             Content="Cancelar e voltar" 
-                             HorizontalAlignment="Left"
-                             Click="CancelButton_Click"/>
+            <!-- Título e subtítulo -->
+            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+                <TextBlock x:Name="TitleText" 
+                           Text="Adicionar Funcionário"
+                           Style="{ThemeResource TitleLargeTextBlockStyle}"/>
+                <TextBlock Text="Preencha os dados do funcionário"
+                           Style="{ThemeResource CaptionTextBlockStyle}"
+                           Opacity="0.7"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
 
-            <!-- Botões à direita -->
-            <Button Grid.Column="1" 
-                    Content="Cancelar" 
-                    Click="CancelButton_Click"
-                    Width="120"/>
+            <!-- Indicadores de modo e progresso -->
+            <StackPanel Grid.Column="1" 
+                        Orientation="Horizontal" 
+                        Spacing="16" 
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Right">
 
-            <Button Grid.Column="2" 
-                    x:Name="SaveButton"
-                    Content="Salvar" 
-                    Click="SaveButton_Click"
-                    Style="{ThemeResource AccentButtonStyle}"
-                    Width="120"
-                    IsEnabled="False"/>
+                <!-- Badge de Modo -->
+                <Border x:Name="ModeBadge"
+                        Background="{ThemeResource SystemFillColorAttentionBrush}" 
+                        CornerRadius="16" 
+                        Padding="12,6">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon x:Name="ModeIcon" 
+                                  Glyph="&#xE710;" 
+                                  FontSize="12"
+                                  Foreground="White"/>
+                        <TextBlock x:Name="ModeText" 
+                                   Text="Novo Funcionário" 
+                                   FontWeight="SemiBold"
+                                   Foreground="White"
+                                   Style="{ThemeResource CaptionTextBlockStyle}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- Conteúdo do formulário -->
+        <Grid Grid.Row="1" Padding="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Área de rolagem com campos -->
+            <ScrollViewer Grid.Row="0" 
+                          VerticalScrollBarVisibility="Auto" 
+                          VerticalScrollMode="Auto"
+                          Padding="0,0,16,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="32"/>
+                        <!-- Espaçamento entre colunas -->
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Coluna Esquerda - Dados Pessoais e Endereço -->
+                    <StackPanel Grid.Column="0" Spacing="24">
+                        <!-- Card de Informações Pessoais -->
+                        <Border Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" 
+                                            Spacing="8" 
+                                            Margin="0,0,0,16">
+                                    <FontIcon Glyph="&#xE77B;" 
+                                              FontSize="20" 
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Informações Pessoais" 
+                                               Style="{StaticResource SectionHeaderStyle}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <TextBox x:Name="NameBox"
+                                         Header="Nome *"
+                                         PlaceholderText="Digite o nome completo"
+                                         Style="{StaticResource FormTextBoxStyle}"
+                                         TextChanged="ValidateInput"/>
+
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox x:Name="EmailBox"
+                                             Grid.Column="0"
+                                             Header="Email *"
+                                             PlaceholderText="Digite o email"
+                                             Style="{StaticResource FormTextBoxStyle}"
+                                             TextChanged="ValidateInput"/>
+
+                                    <TextBox x:Name="PhoneBox"
+                                             Grid.Column="1"
+                                             Header="Telefone *"
+                                             PlaceholderText="(00) 00000-0000"
+                                             Style="{StaticResource FormTextBoxStyle}"
+                                             TextChanged="ValidateInput"
+                                             MaxLength="15"/>
+                                </Grid>
+
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox x:Name="DocumentBox"
+                                             Grid.Column="0"
+                                             Header="CPF/CNPJ *"
+                                             PlaceholderText="Digite o CPF ou CNPJ"
+                                             Style="{StaticResource FormTextBoxStyle}"
+                                             TextChanged="ValidateInput"/>
+
+                                    <CalendarDatePicker x:Name="BirthDatePicker"
+                                                        Grid.Column="1"
+                                                        Header="Data de Nascimento *"
+                                                        PlaceholderText="Selecione a data"
+                                                        Style="{StaticResource FormCalendarDatePickerStyle}"
+                                                        DateChanged="ValidateInput"/>
+                                </Grid>
+
+                                <!-- Mensagem de validação específica para este grupo -->
+                                <InfoBar x:Name="PersonalInfoValidation"
+                                         Severity="Error"
+                                         IsOpen="False"
+                                         IsClosable="False"
+                                         Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card de Endereço -->
+                        <Border Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" 
+                                            Spacing="8" 
+                                            Margin="0,0,0,16">
+                                    <FontIcon Glyph="&#xE707;" 
+                                              FontSize="20" 
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Endereço" 
+                                               Style="{StaticResource SectionHeaderStyle}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <TextBox x:Name="AddressBox"
+                                         Header="Endereço"
+                                         PlaceholderText="Digite o endereço"
+                                         Style="{StaticResource FormTextBoxStyle}"/>
+
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox x:Name="CityBox"
+                                             Grid.Column="0"
+                                             Header="Cidade"
+                                             PlaceholderText="Digite a cidade"
+                                             Style="{StaticResource FormTextBoxStyle}"/>
+
+                                    <TextBox x:Name="StateBox"
+                                             Grid.Column="1"
+                                             Header="Estado"
+                                             PlaceholderText="UF"
+                                             MinWidth="80"
+                                             Style="{StaticResource FormTextBoxStyle}"
+                                             MaxLength="2"/>
+                                </Grid>
+
+                                <TextBox x:Name="ZipCodeBox"
+                                         Header="CEP"
+                                         PlaceholderText="00000-000"
+                                         Width="200"
+                                         HorizontalAlignment="Left"
+                                         Style="{StaticResource FormTextBoxStyle}"
+                                         MaxLength="9"/>
+
+                                <!-- Ações extras -->
+                                <StackPanel Orientation="Horizontal" 
+                                            HorizontalAlignment="Right" 
+                                            Margin="0,8,0,0">
+                                    <HyperlinkButton Content="Buscar por CEP" 
+                                                     Click="SearchByCEP_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Coluna Direita - Dados Funcionais e Acesso -->
+                    <StackPanel Grid.Column="2" Spacing="24">
+                        <!-- Card de Acesso ao Sistema -->
+                        <Border Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" 
+                                            Spacing="8" 
+                                            Margin="0,0,0,16">
+                                    <FontIcon Glyph="&#xE72E;" 
+                                              FontSize="20" 
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Acesso ao Sistema" 
+                                               Style="{StaticResource SectionHeaderStyle}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <TextBox x:Name="UsernameBox"
+                                         Header="Nome de Usuário *"
+                                         PlaceholderText="Digite o nome de usuário"
+                                         Style="{StaticResource FormTextBoxStyle}"
+                                         TextChanged="ValidateInput"/>
+
+                                <PasswordBox x:Name="PasswordBox"
+                                             Header="{x:Bind PasswordHeaderText, Mode=OneWay}"
+                                             PlaceholderText="Digite a senha"
+                                             Style="{StaticResource FormPasswordBoxStyle}"
+                                             PasswordChanged="ValidateInput"/>
+
+                                <CheckBox x:Name="UserActiveCheckBox"
+                                          Content="Usuário Ativo"
+                                          IsChecked="True"
+                                          Margin="0,8,0,0"/>
+
+                                <!-- Opções avançadas - visíveis apenas no modo de edição -->
+                                <Expander Header="Opções avançadas" 
+                                          Margin="0,16,0,0"
+                                          IsExpanded="False"
+                                          Visibility="{x:Bind IsEditMode, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel Margin="0,8,0,0" Spacing="8">
+                                        <CheckBox x:Name="ResetPasswordCheckBox"
+                                                  Content="Forçar redefinição de senha no próximo login"
+                                                  IsChecked="False"/>
+
+                                        <CheckBox x:Name="UnlockUserCheckBox"
+                                                  Content="Desbloquear usuário"
+                                                  IsChecked="False"
+                                                  Visibility="{x:Bind Employee.IsLocked, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                </Expander>
+
+                                <!-- Mensagem de validação específica para este grupo -->
+                                <InfoBar x:Name="AccessValidation"
+                                         Severity="Error"
+                                         IsOpen="False"
+                                         IsClosable="False"
+                                         Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card de Dados Funcionais -->
+                        <Border Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" 
+                                            Spacing="8" 
+                                            Margin="0,0,0,16">
+                                    <FontIcon Glyph="&#xE7EE;" 
+                                              FontSize="20" 
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Dados Funcionais" 
+                                               Style="{StaticResource SectionHeaderStyle}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="Papel/Cargo *" 
+                                               Style="{ThemeResource BodyTextBlockStyle}" 
+                                               Margin="0,0,0,4"/>
+
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Círculo de cor do papel -->
+                                        <Border x:Name="RoleColorIndicator"
+                                                Grid.Column="0"
+                                                Width="24" 
+                                                Height="24" 
+                                                CornerRadius="12"
+                                                VerticalAlignment="Center"
+                                                Background="{ThemeResource SystemFillColorNeutralBrush}"/>
+
+                                        <!-- Combo de seleção de papel -->
+                                        <ComboBox x:Name="RoleBox"
+                                                  Grid.Column="1"
+                                                  PlaceholderText="Selecione o papel no sistema"
+                                                  Style="{StaticResource FormComboBoxStyle}"
+                                                  SelectionChanged="RoleBox_SelectionChanged"
+                                                  Width="Auto"
+                                                  HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <TextBox x:Name="PositionBox"
+                                         Header="Função *"
+                                         PlaceholderText="Digite a função/cargo"
+                                         Style="{StaticResource FormTextBoxStyle}"
+                                         TextChanged="ValidateInput"/>
+
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <CalendarDatePicker x:Name="HireDatePicker"
+                                                        Grid.Column="0"
+                                                        Header="Data de Admissão *"
+                                                        PlaceholderText="Selecione a data"
+                                                        Style="{StaticResource FormCalendarDatePickerStyle}"
+                                                        DateChanged="ValidateInput"/>
+
+                                    <CalendarDatePicker x:Name="TerminationDatePicker"
+                                                        Grid.Column="1"
+                                                        Header="Data de Desligamento"
+                                                        PlaceholderText="Selecione a data (se aplicável)"
+                                                        Style="{StaticResource FormCalendarDatePickerStyle}"
+                                                        DateChanged="TerminationDate_Changed"/>
+                                </Grid>
+
+                                <TextBox x:Name="EmployeeCodeBox"
+                                         Header="Código do Funcionário"
+                                         IsReadOnly="True"
+                                         PlaceholderText="Gerado automaticamente"
+                                         Style="{StaticResource FormTextBoxStyle}"
+                                         Visibility="{x:Bind IsEditMode, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                <!-- Mensagem de validação específica para este grupo -->
+                                <InfoBar x:Name="RoleValidation"
+                                         Severity="Error"
+                                         IsOpen="False"
+                                         IsClosable="False"
+                                         Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card de Permissões (modo edição) -->
+                        <Border Style="{StaticResource CardBorderStyle}"
+                                Visibility="{x:Bind IsEditMode, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" 
+                                            Spacing="8" 
+                                            Margin="0,0,0,16">
+                                    <FontIcon Glyph="&#xE8D7;" 
+                                              FontSize="20" 
+                                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="Permissões" 
+                                               Style="{StaticResource SectionHeaderStyle}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- Lista de permissões -->
+                                <ItemsRepeater x:Name="PermissionsList">
+                                    <ItemsRepeater.Layout>
+                                        <UniformGridLayout MinItemWidth="180" 
+                                                          MinItemHeight="36" 
+                                                          MinRowSpacing="8" 
+                                                          MinColumnSpacing="8"/>
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Content="{Binding}"
+                                                      IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                      Tag="{Binding PermissionKey}"/>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+
+                                <!-- Mensagem quando sem permissões -->
+                                <TextBlock Text="Permissões serão exibidas após selecionar o cargo"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                          HorizontalAlignment="Center"
+                                          TextAlignment="Center"
+                                          Margin="0,16,0,0"
+                                          Visibility="{x:Bind HasPermissions, Mode=OneWay, Converter={StaticResource BoolToVisibilityInverseConverter}}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+
+            <!-- Rodapé com botões de ação -->
+            <Grid Grid.Row="1" 
+                  Margin="0,16,0,0" 
+                  Background="{ThemeResource LayerFillColorDefaultBrush}" 
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                  BorderThickness="0,1,0,0"
+                  Padding="0,16,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Mensagem de validação global -->
+                <InfoBar Grid.Column="0"
+                         x:Name="ValidationInfoBar"
+                         IsOpen="False"
+                         Severity="Error"
+                         IsClosable="False"
+                         MinWidth="300"/>
+
+                <!-- Botões à direita -->
+                <StackPanel Grid.Column="2" 
+                            Orientation="Horizontal" 
+                            HorizontalAlignment="Right"
+                            Spacing="8">
+                    <Button Content="Cancelar" 
+                            Click="CancelButton_Click"
+                            Style="{StaticResource ActionButtonStyle}"/>
+
+                    <Button x:Name="SaveButton"
+                            Content="Salvar" 
+                            Click="SaveButton_Click"
+                            Style="{StaticResource PrimaryActionButtonStyle}"
+                            IsEnabled="False">
+                        <Button.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="S" Modifiers="Control"/>
+                        </Button.KeyboardAccelerators>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- Sobreposição de carregamento -->
+        <Grid x:Name="LoadingOverlay" 
+              Background="{ThemeResource LayerFillColorDefaultBrush}"
+              Opacity="0.7"
+              Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16">
+                <ProgressRing IsActive="True" 
+                              Width="48" 
+                              Height="48"/>
+                <TextBlock Text="Salvando..." 
+                           Style="{ThemeResource SubtitleTextBlockStyle}"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </Page>
