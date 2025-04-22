@@ -6,7 +6,6 @@
     xmlns:local="using:PDV.UI.WinUI3.Views"
     xmlns:controls="using:PDV.UI.WinUI3.Controls"
     xmlns:converters="using:PDV.UI.WinUI3.Converters"
-    xmlns:lottie="using:CommunityToolkit.WinUI.Lottie"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -23,6 +22,7 @@
         <converters:DateToFormattedStringConverter x:Key="DateToFormattedStringConverter"/>
         <converters:CountToTextConverter x:Key="CountToTextConverter"/>
         <converters:BoolToVisibilityInverseConverter x:Key="BoolToVisibilityInverseConverter"/>
+        <converters:BoolToActiveStatusConverter x:Key="BoolToActiveStatusConverter"/>
 
         <!-- Estilos e Templates -->
         <Style x:Key="CardBorderStyle" TargetType="Border">
@@ -213,12 +213,78 @@
         <!-- Dados Tab Template (Funcionário) -->
         <DataTemplate x:Key="EmployeeDataTemplate">
             <ScrollViewer>
-                <StackPanel Spacing="20" Padding="24">
-                    <!-- Seção de dados pessoais -->
-                    <StackPanel Spacing="16">
-                        <TextBlock Text="Dados Pessoais" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                <RelativePanel Padding="{StaticResource ResponsiveMarginLarge}">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup>
+                            <VisualState x:Name="WideState">
+                                <VisualState.StateTriggers>
+                                    <AdaptiveTrigger MinWindowWidth="{StaticResource MediumModeThresholdWidth}"/>
+                                </VisualState.StateTriggers>
+                                <VisualState.Setters>
+                                    <!-- Configurações para telas grandes - layout em duas colunas -->
+                                    <Setter Target="PersonalInfoGrid.Width" Value="*"/>
+                                    <Setter Target="ContactInfoGrid.Width" Value="*"/>
+                                    <Setter Target="RoleInfoGrid.Width" Value="*"/>
+                                    <Setter Target="SystemAccessGrid.Width" Value="*"/>
+                                    
+                                    <Setter Target="ContactInfoPanel.(RelativePanel.RightOf)" Value="PersonalInfoPanel"/>
+                                    <Setter Target="ContactInfoPanel.(RelativePanel.AlignTopWith)" Value="PersonalInfoPanel"/>
+                                    <Setter Target="RoleInfoPanel.(RelativePanel.Below)" Value="PersonalInfoPanel"/>
+                                    <Setter Target="SystemAccessPanel.(RelativePanel.RightOf)" Value="RoleInfoPanel"/>
+                                    <Setter Target="SystemAccessPanel.(RelativePanel.AlignTopWith)" Value="RoleInfoPanel"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            
+                            <VisualState x:Name="MediumState">
+                                <VisualState.StateTriggers>
+                                    <AdaptiveTrigger MinWindowWidth="{StaticResource CompactModeThresholdWidth}"/>
+                                </VisualState.StateTriggers>
+                                <VisualState.Setters>
+                                    <!-- Configurações para telas médias - layout em uma coluna -->
+                                    <Setter Target="PersonalInfoGrid.Width" Value="Auto"/>
+                                    <Setter Target="ContactInfoGrid.Width" Value="Auto"/>
+                                    <Setter Target="RoleInfoGrid.Width" Value="Auto"/>
+                                    <Setter Target="SystemAccessGrid.Width" Value="Auto"/>
+                                    
+                                    <Setter Target="ContactInfoPanel.(RelativePanel.Below)" Value="PersonalInfoPanel"/>
+                                    <Setter Target="ContactInfoPanel.(RelativePanel.AlignLeftWith)" Value="PersonalInfoPanel"/>
+                                    <Setter Target="RoleInfoPanel.(RelativePanel.Below)" Value="ContactInfoPanel"/>
+                                    <Setter Target="SystemAccessPanel.(RelativePanel.Below)" Value="RoleInfoPanel"/>
+                                    <Setter Target="SystemAccessPanel.(RelativePanel.AlignLeftWith)" Value="RoleInfoPanel"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            
+                            <VisualState x:Name="NarrowState">
+                                <VisualState.StateTriggers>
+                                    <AdaptiveTrigger MinWindowWidth="0"/>
+                                </VisualState.StateTriggers>
+                                <VisualState.Setters>
+                                    <!-- Configurações para telas pequenas - layout em uma coluna e fontes menores -->
+                                    <Setter Target="PersonalInfoGrid.Width" Value="Auto"/>
+                                    <Setter Target="ContactInfoGrid.Width" Value="Auto"/>
+                                    <Setter Target="RoleInfoGrid.Width" Value="Auto"/>
+                                    <Setter Target="SystemAccessGrid.Width" Value="Auto"/>
+                                    
+                                    <Setter Target="ContactInfoPanel.(RelativePanel.Below)" Value="PersonalInfoPanel"/>
+                                    <Setter Target="ContactInfoPanel.(RelativePanel.AlignLeftWith)" Value="PersonalInfoPanel"/>
+                                    <Setter Target="RoleInfoPanel.(RelativePanel.Below)" Value="ContactInfoPanel"/>
+                                    <Setter Target="SystemAccessPanel.(RelativePanel.Below)" Value="RoleInfoPanel"/>
+                                    <Setter Target="SystemAccessPanel.(RelativePanel.AlignLeftWith)" Value="RoleInfoPanel"/>
+                                    
+                                    <Setter Target="PersonalInfoTitle.FontSize" Value="{StaticResource ResponsiveFontSizeMedium}"/>
+                                    <Setter Target="ContactInfoTitle.FontSize" Value="{StaticResource ResponsiveFontSizeMedium}"/>
+                                    <Setter Target="RoleInfoTitle.FontSize" Value="{StaticResource ResponsiveFontSizeMedium}"/>
+                                    <Setter Target="SystemAccessTitle.FontSize" Value="{StaticResource ResponsiveFontSizeMedium}"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
 
-                        <Grid ColumnSpacing="24" RowSpacing="16">
+                    <!-- Seção de dados pessoais -->
+                    <StackPanel x:Name="PersonalInfoPanel" Spacing="16" Margin="0,0,24,24">
+                        <TextBlock x:Name="PersonalInfoTitle" Text="Dados Pessoais" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                        <Grid x:Name="PersonalInfoGrid" ColumnSpacing="24" RowSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -232,45 +298,81 @@
                             <!-- Nome -->
                             <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
                                 <TextBlock Text="Nome" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock x:Name="NameText" 
-                                           Text="{Binding Name}" 
-                                           Style="{StaticResource BodyTextBlockStyle}"/>
+                                <TextBlock Text="{Binding Name}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
 
                             <!-- E-mail -->
                             <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
                                 <TextBlock Text="E-mail" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock x:Name="EmailText" 
-                                           Text="{Binding Email}" 
-                                           Style="{StaticResource BodyTextBlockStyle}"/>
+                                <TextBlock Text="{Binding Email}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
 
                             <!-- Telefone -->
                             <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
                                 <TextBlock Text="Telefone" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock x:Name="PhoneText" 
-                                           Text="{Binding Phone}" 
+                                <TextBlock Text="{Binding Phone}" Style="{StaticResource BodyTextBlockStyle}"/>
+                            </StackPanel>
+
+                            <!-- Data de Nascimento -->
+                            <StackPanel Grid.Column="1" Grid.Row="1" Spacing="4">
+                                <TextBlock Text="Data de Nascimento" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding BirthDate, Converter={StaticResource DateToFormattedStringConverter}}" 
                                            Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
 
-                            <!-- Código do Funcionário -->
-                            <StackPanel Grid.Column="1" Grid.Row="1" Spacing="4">
-                                <TextBlock Text="Cód. Funcionário" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock x:Name="EmployeeCodeText" 
-                                           Text="{Binding EmployeeCode}" 
-                                           Style="{StaticResource BodyTextBlockStyle}"/>
+                            <!-- Documento -->
+                            <StackPanel Grid.Column="0" Grid.Row="2" Spacing="4">
+                                <TextBlock Text="Documento (CPF/CNPJ)" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding Document}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
 
-                    <!-- Divisor -->
-                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" Stretch="Fill"/>
+                    <!-- Seção de contato -->
+                    <StackPanel x:Name="ContactInfoPanel" Spacing="16" Margin="0,0,24,24">
+                        <TextBlock x:Name="ContactInfoTitle" Text="Dados de Contato" Style="{StaticResource SubtitleTextBlockStyle}"/>
 
-                    <!-- Seção funcional -->
-                    <StackPanel Spacing="16">
-                        <TextBlock Text="Dados Funcionais" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                        <Grid x:Name="ContactInfoGrid" ColumnSpacing="24" RowSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                        <Grid ColumnSpacing="24" RowSpacing="16">
+                            <!-- Endereço -->
+                            <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
+                                <TextBlock Text="Endereço" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding Address}" Style="{StaticResource BodyTextBlockStyle}"/>
+                            </StackPanel>
+
+                            <!-- Cidade -->
+                            <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
+                                <TextBlock Text="Cidade" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding City}" Style="{StaticResource BodyTextBlockStyle}"/>
+                            </StackPanel>
+
+                            <!-- Estado -->
+                            <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
+                                <TextBlock Text="Estado" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding State}" Style="{StaticResource BodyTextBlockStyle}"/>
+                            </StackPanel>
+
+                            <!-- CEP -->
+                            <StackPanel Grid.Column="1" Grid.Row="1" Spacing="4">
+                                <TextBlock Text="CEP" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding ZipCode}" Style="{StaticResource BodyTextBlockStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Seção de cargo/função -->
+                    <StackPanel x:Name="RoleInfoPanel" Spacing="16" Margin="0,0,24,24">
+                        <TextBlock x:Name="RoleInfoTitle" Text="Dados Funcionais" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                        <Grid x:Name="RoleInfoGrid" ColumnSpacing="24" RowSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -284,104 +386,45 @@
                             <!-- Cargo -->
                             <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
                                 <TextBlock Text="Cargo" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock x:Name="PositionText" 
-                                           Text="{Binding Position}"
-                                           Style="{StaticResource BodyTextBlockStyle}"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Border Width="10" Height="10" CornerRadius="5" Background="{Binding Role, Converter={StaticResource RoleToColorConverter}}"/>
+                                    <TextBlock Text="{Binding Role}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                </StackPanel>
                             </StackPanel>
 
-                            <!-- Função no Sistema -->
+                            <!-- Função -->
                             <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
-                                <TextBlock Text="Função no Sistema" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Border Background="{Binding Role, Converter={StaticResource RoleToColorConverter}}" 
-                                            CornerRadius="4" 
-                                            Padding="8,4">
-                                        <TextBlock x:Name="RoleText" 
-                                                   Text="{Binding Role}"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="White"
-                                                   Style="{StaticResource CaptionTextBlockStyle}"/>
-                                    </Border>
-                                </StackPanel>
+                                <TextBlock Text="Função" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding Position}" Style="{StaticResource BodyTextBlockStyle}"/>
+                            </StackPanel>
+
+                            <!-- Código do Funcionário -->
+                            <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
+                                <TextBlock Text="Código do Funcionário" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding EmployeeCode}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
 
                             <!-- Data de Admissão -->
-                            <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
-                                <TextBlock Text="Data de Admissão" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock x:Name="HireDateText" 
-                                           Text="{Binding HireDate, Converter={StaticResource DateToFormattedStringConverter}}"
-                                           Style="{StaticResource BodyTextBlockStyle}"/>
-                            </StackPanel>
-
-                            <!-- Data de Desligamento -->
                             <StackPanel Grid.Column="1" Grid.Row="1" Spacing="4">
-                                <TextBlock Text="Data de Desligamento" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock x:Name="TerminationDateText" 
-                                           Text="{Binding TerminationDate, Converter={StaticResource DateToFormattedStringConverter}, TargetNullValue='-'}"
+                                <TextBlock Text="Data de Admissão" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding HireDate, Converter={StaticResource DateToFormattedStringConverter}}" 
                                            Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
 
-                            <!-- Status -->
+                            <!-- Data de Demissão -->
                             <StackPanel Grid.Column="0" Grid.Row="2" Spacing="4">
-                                <TextBlock Text="Status" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <Border Background="{ThemeResource SystemFillColorSuccessBrush}" 
-                                            Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"
-                                            CornerRadius="4" 
-                                            Padding="8,4">
-                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <FontIcon Glyph="&#xE930;" 
-                                                      FontSize="12" 
-                                                      Foreground="White"/>
-                                            <TextBlock Text="Ativo"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="White"
-                                                       Style="{StaticResource CaptionTextBlockStyle}"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Background="{ThemeResource SystemFillColorCautionBrush}" 
-                                            Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityInverseConverter}}"
-                                            CornerRadius="4" 
-                                            Padding="8,4">
-                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <FontIcon Glyph="&#xE738;" 
-                                                      FontSize="12" 
-                                                      Foreground="White"/>
-                                            <TextBlock Text="Inativo"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="White"
-                                                       Style="{StaticResource CaptionTextBlockStyle}"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Background="{ThemeResource SystemFillColorCriticalBrush}" 
-                                            Visibility="{Binding IsLocked, Converter={StaticResource BoolToVisibilityConverter}}"
-                                            CornerRadius="4" 
-                                            Padding="8,4">
-                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <FontIcon Glyph="&#xE72E;" 
-                                                      FontSize="12" 
-                                                      Foreground="White"/>
-                                            <TextBlock Text="Bloqueado"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="White"
-                                                       Style="{StaticResource CaptionTextBlockStyle}"/>
-                                        </StackPanel>
-                                    </Border>
-                                </StackPanel>
+                                <TextBlock Text="Data de Desligamento" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding TerminationDate, Converter={StaticResource DateToFormattedStringConverter}}" 
+                                           Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
 
-                    <!-- Divisor -->
-                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" Stretch="Fill"/>
+                    <!-- Seção de acesso ao sistema -->
+                    <StackPanel x:Name="SystemAccessPanel" Spacing="16" Margin="0,0,24,24">
+                        <TextBlock x:Name="SystemAccessTitle" Text="Acesso ao Sistema" Style="{StaticResource SubtitleTextBlockStyle}"/>
 
-                    <!-- Seção de segurança -->
-                    <StackPanel Spacing="16">
-                        <TextBlock Text="Segurança e Acesso" Style="{StaticResource SubtitleTextBlockStyle}"/>
-
-                        <Grid ColumnSpacing="24" RowSpacing="16">
+                        <Grid x:Name="SystemAccessGrid" ColumnSpacing="24" RowSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -389,56 +432,59 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <!-- Nome de Usuário -->
                             <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
                                 <TextBlock Text="Nome de Usuário" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock x:Name="UsernameText" 
-                                           Text="{Binding Username}" 
-                                           Style="{StaticResource BodyTextBlockStyle}"/>
+                                <TextBlock Text="{Binding Username}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
 
-                            <!-- Último Login -->
+                            <!-- Status da Conta -->
                             <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
-                                <TextBlock Text="Último Login" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <TextBlock x:Name="LastLoginText" 
-                                           Text="{Binding LastLoginDate, Converter={StaticResource DateToFormattedStringConverter}, TargetNullValue='Nunca'}" 
+                                <TextBlock Text="Status da Conta" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE73E;" 
+                                             FontSize="14" 
+                                             Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                             Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <FontIcon Glyph="&#xE711;" 
+                                             FontSize="14" 
+                                             Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                             Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityInverseConverter}}"/>
+                                    <TextBlock Text="{Binding IsActive, Converter={StaticResource BoolToActiveStatusConverter}}" 
+                                               Style="{StaticResource BodyTextBlockStyle}"/>
+
+                                    <TextBlock Text=" | " Style="{StaticResource BodyTextBlockStyle}" 
+                                               Visibility="{Binding IsLocked, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                    <FontIcon Glyph="&#xE72E;" 
+                                             FontSize="14" 
+                                             Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                             Visibility="{Binding IsLocked, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <TextBlock Text="Bloqueado" 
+                                               Style="{StaticResource BodyTextBlockStyle}"
+                                               Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                               Visibility="{Binding IsLocked, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Último Acesso -->
+                            <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
+                                <TextBlock Text="Último Acesso" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding LastLoginDate, Converter={StaticResource DateTimeToRelativeTimeConverter}}" 
                                            Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
 
-                            <!-- Permissões -->
-                            <StackPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Spacing="4">
-                                <TextBlock Text="Permissões" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                <ItemsRepeater ItemsSource="{Binding Permissions}" HorizontalAlignment="Left">
-                                    <ItemsRepeater.Layout>
-                                        <UniformGridLayout MinItemWidth="150" 
-                                                           MinItemHeight="32" 
-                                                           MinRowSpacing="8" 
-                                                           MinColumnSpacing="8" 
-                                                           ItemsStretch="None"/>
-                                    </ItemsRepeater.Layout>
-                                    <ItemsRepeater.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" 
-                                                    CornerRadius="4" 
-                                                    Padding="8,4">
-                                                <StackPanel Orientation="Horizontal" Spacing="4">
-                                                    <FontIcon Glyph="&#xE785;" 
-                                                              FontSize="12" 
-                                                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                                    <TextBlock Text="{Binding}"
-                                                               Style="{StaticResource CaptionTextBlockStyle}"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsRepeater.ItemTemplate>
-                                </ItemsRepeater>
+                            <!-- Tentativas de Acesso -->
+                            <StackPanel Grid.Column="1" Grid.Row="1" Spacing="4" 
+                                        Visibility="{Binding IsLocked, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="Tentativas de Login" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBlock Text="{Binding FailedLoginAttempts}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
-                </StackPanel>
+                </RelativePanel>
             </ScrollViewer>
         </DataTemplate>
 
@@ -455,334 +501,490 @@
     </Page.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="WideState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource MediumModeThresholdWidth}"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- Configurações para telas grandes -->
+                        <Setter Target="TogglePaneButton.Visibility" Value="Collapsed"/>
+                        <Setter Target="HeaderTextBlock.Margin" Value="24,16,0,16"/>
+                        <Setter Target="HeaderTextBlock.Style" Value="{StaticResource TitleTextBlockStyle}"/>
+                        <Setter Target="CountTextBlock.Style" Value="{StaticResource SubtitleTextBlockStyle}"/>
+                        <Setter Target="CountTextBlock.Margin" Value="8,0,0,0"/>
+                        <Setter Target="CommandBar.Margin" Value="0"/>
+                        <Setter Target="SearchBox.Width" Value="300"/>
+                        <Setter Target="FilteringPanel.Orientation" Value="Horizontal"/>
+                        <Setter Target="FilteringPanel.Spacing" Value="8"/>
+                        <Setter Target="FilterBox.Width" Value="150"/>
+                        <Setter Target="StatusFilterBox.Width" Value="150"/>
+                        <Setter Target="SortingComboBox.Width" Value="150"/>
+                        <!-- Configuração de layout -->
+                        <Setter Target="LeftPanel.Width" Value="500"/>
+                        <Setter Target="RightPanel.Margin" Value="8,0,0,0"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState x:Name="MediumState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource CompactModeThresholdWidth}"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- Configurações para telas médias -->
+                        <Setter Target="TogglePaneButton.Visibility" Value="Visible"/>
+                        <Setter Target="HeaderTextBlock.Margin" Value="16,16,0,16"/>
+                        <Setter Target="HeaderTextBlock.Style" Value="{StaticResource SubtitleTextBlockStyle}"/>
+                        <Setter Target="CountTextBlock.Style" Value="{StaticResource BodyTextBlockStyle}"/>
+                        <Setter Target="CountTextBlock.Margin" Value="8,0,0,0"/>
+                        <Setter Target="CommandBar.Margin" Value="0"/>
+                        <Setter Target="SearchBox.Width" Value="250"/>
+                        <Setter Target="FilteringPanel.Orientation" Value="Horizontal"/>
+                        <Setter Target="FilteringPanel.Spacing" Value="8"/>
+                        <Setter Target="FilterBox.Width" Value="120"/>
+                        <Setter Target="StatusFilterBox.Width" Value="120"/>
+                        <Setter Target="SortingComboBox.Width" Value="120"/>
+                        <!-- Configuração de layout -->
+                        <Setter Target="LeftPanel.Width" Value="400"/>
+                        <Setter Target="RightPanel.Margin" Value="8,0,0,0"/>
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState x:Name="NarrowState">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0"/>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- Configurações para telas pequenas -->
+                        <Setter Target="TogglePaneButton.Visibility" Value="Visible"/>
+                        <Setter Target="HeaderTextBlock.Margin" Value="8,8,0,8"/>
+                        <Setter Target="HeaderTextBlock.Style" Value="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <Setter Target="CountTextBlock.Style" Value="{StaticResource CaptionTextBlockStyle}"/>
+                        <Setter Target="CountTextBlock.Margin" Value="4,0,0,0"/>
+                        <Setter Target="CommandBar.Margin" Value="0"/>
+                        <Setter Target="SearchBox.Width" Value="200"/>
+                        <Setter Target="FilteringPanel.Orientation" Value="Vertical"/>
+                        <Setter Target="FilteringPanel.Spacing" Value="4"/>
+                        <Setter Target="FilterBox.Width" Value="NaN"/>
+                        <Setter Target="StatusFilterBox.Width" Value="NaN"/>
+                        <Setter Target="SortingComboBox.Width" Value="NaN"/>
+                        <!-- Configuração de layout -->
+                        <Setter Target="LeftPanel.Width" Value="*"/>
+                        <Setter Target="RightPanel.Visibility" Value="Collapsed"/>
+                        <Setter Target="LeftPanel.Visibility" Value="{Binding HasSelectedEmployee, Converter={StaticResource BoolToVisibilityInverseConverter}}"/>
+                        <Setter Target="RightPanel.Visibility" Value="{Binding HasSelectedEmployee, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
 
-        <!-- Header com gradiente -->
-        <Grid Grid.Row="0" 
-              Background="{ThemeResource LayerFillColorDefaultBrush}" 
-              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-              BorderThickness="0,0,0,1" 
-              Padding="24,20">
+        <!-- Layout principal com grid de dois painéis -->
+        <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition x:Name="LeftPanel" Width="500"/>
+                <ColumnDefinition x:Name="RightPanel" Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Título e subtítulo -->
-            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
-                <TextBlock Text="Gerenciamento de Funcionários"
-                           Style="{StaticResource TitleLargeTextBlockStyle}"/>
-                <TextBlock Text="Visualize, adicione e gerencie a equipe"
-                           Style="{StaticResource CaptionTextBlockStyle}"
-                           Opacity="0.7"
-                           Margin="0,4,0,0"/>
-            </StackPanel>
-
-            <!-- Busca e Filtros -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-                <!-- Busca melhorada -->
-                <AutoSuggestBox x:Name="SearchBox"
-                               PlaceholderText="Buscar por nome, email, telefone..."
-                               QueryIcon="Find"
-                               Width="350"
-                               TextChanged="SearchBox_TextChanged">
-                </AutoSuggestBox>
-
-                <!-- Filtro de status -->
-                <ComboBox x:Name="StatusFilterBox"
-                         PlaceholderText="Status"
-                         Width="120"
-                         SelectionChanged="StatusFilterBox_SelectionChanged">
-                    <ComboBoxItem Content="Todos"/>
-                    <ComboBoxItem Content="Ativos"/>
-                    <ComboBoxItem Content="Inativos"/>
-                    <ComboBoxItem Content="Bloqueados"/>
-                </ComboBox>
-
-                <!-- Filtro de cargo -->
-                <ComboBox x:Name="FilterBox"
-                         PlaceholderText="Filtrar por função"
-                         SelectionChanged="FilterBox_SelectionChanged"
-                         Width="150">
-                    <ComboBoxItem Content="Todos"/>
-                    <ComboBoxItem Content="Vendedor"/>
-                    <ComboBoxItem Content="Administrador"/>
-                    <ComboBoxItem Content="Caixa"/>
-                    <ComboBoxItem Content="Gerente"/>
-                    <ComboBoxItem Content="Estoquista"/>
-                </ComboBox>
-            </StackPanel>
-
-            <!-- Botões de ação -->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                <Button x:Name="RefreshButton"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Click="RefreshList_Click"
-                        ToolTipService.ToolTip="Atualizar">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE72C;" FontSize="16"/>
-                        <TextBlock Text="Atualizar"/>
-                    </StackPanel>
-                </Button>
-
-                <Button x:Name="AddEmployeeButton"
-                        Style="{StaticResource PrimaryActionButtonStyle}"
-                        Click="AddEmployee_Click">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE710;" FontSize="16"/>
-                        <TextBlock Text="Novo Funcionário"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-        </Grid>
-
-        <!-- Conteúdo principal -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MinWidth="400"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="450" MinWidth="400"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Painel esquerdo - Lista de funcionários -->
-            <Grid Grid.Column="0" Padding="24">
+            <!-- Painel esquerdo (Lista de funcionários) -->
+            <Grid Grid.Column="0" Padding="0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <!-- Cabeçalho da lista e ordenação -->
-                <Grid Grid.Row="0" Margin="0,0,0,16">
+                <!-- Cabeçalho com título e controle da quantidade -->
+                <Grid Grid.Row="0" Background="{ThemeResource NavigationViewTopPaneBackground}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                              Text="{x:Bind FilteredEmployees.Count, Mode=OneWay, Converter={StaticResource CountToTextConverter}}" 
-                              Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <Button x:Name="TogglePaneButton"
+                            Grid.Column="0"
+                            Style="{StaticResource DefaultButtonStyle}" 
+                            Width="48" Height="48"
+                            VerticalAlignment="Stretch"
+                            Visibility="Collapsed"
+                            Click="TogglePaneButton_Click"
+                            ToolTipService.ToolTip="Voltar">
+                        <FontIcon Glyph="&#xE72B;" FontSize="16"/>
+                    </Button>
 
-                    <ComboBox Grid.Column="2" 
-                             x:Name="SortingComboBox" 
-                             PlaceholderText="Ordenar por" 
-                             Width="160"
-                             SelectionChanged="SortingComboBox_SelectionChanged">
-                        <ComboBoxItem Content="Nome (A-Z)" Tag="NameAsc"/>
-                        <ComboBoxItem Content="Nome (Z-A)" Tag="NameDesc"/>
-                        <ComboBoxItem Content="Data de Admissão (Recente)" Tag="HireDateDesc"/>
-                        <ComboBoxItem Content="Data de Admissão (Antiga)" Tag="HireDateAsc"/>
-                        <ComboBoxItem Content="Função" Tag="Role"/>
-                    </ComboBox>
+                    <StackPanel Grid.Column="1" 
+                                Orientation="Horizontal" 
+                                VerticalAlignment="Center" 
+                                Margin="24,16,0,16">
+                        <TextBlock x:Name="HeaderTextBlock" 
+                                  Text="Funcionários" 
+                                  Style="{StaticResource TitleTextBlockStyle}"/>
+                        <TextBlock x:Name="CountTextBlock" 
+                                  Text="{Binding FilteredEmployees.Count, Converter={StaticResource CountToTextConverter}}" 
+                                  Style="{StaticResource SubtitleTextBlockStyle}" 
+                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                  Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <CommandBar x:Name="CommandBar" 
+                               Grid.Column="2" 
+                               Background="Transparent" 
+                               DefaultLabelPosition="Collapsed" 
+                               HorizontalAlignment="Right" 
+                               Margin="0">
+                        <AppBarButton Icon="Add" 
+                                     Label="Adicionar Funcionário" 
+                                     Click="AddEmployee_Click"/>
+                        <AppBarButton Icon="Refresh" 
+                                     Label="Atualizar" 
+                                     Click="RefreshList_Click"/>
+                    </CommandBar>
+                </Grid>
+
+                <!-- Área de filtros -->
+                <Grid Grid.Row="1" Padding="16,8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                
+                    <!-- Barra de pesquisa -->
+                    <AutoSuggestBox x:Name="SearchBox"
+                                    Grid.Row="0" 
+                                    PlaceholderText="Buscar funcionário..." 
+                                    QueryIcon="Find"
+                                    Width="300"
+                                    HorizontalAlignment="Left" 
+                                    TextChanged="SearchBox_TextChanged"
+                                    QuerySubmitted="SearchBox_QuerySubmitted"/>
+
+                    <!-- Filtros (cargo, status, ordenação) -->
+                    <Grid Grid.Row="1" Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                    
+                        <!-- Filtro por cargo -->
+                        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,0,12,0">
+                            <TextBlock Text="Cargo" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="FilterBox" 
+                                      Width="150" 
+                                      SelectionChanged="FilterBox_SelectionChanged">
+                                <ComboBoxItem Content="Todos" Tag="All" IsSelected="True"/>
+                                <ComboBoxItem Content="Administrador" Tag="Admin"/>
+                                <ComboBoxItem Content="Gerente" Tag="Manager"/>
+                                <ComboBoxItem Content="Vendedor" Tag="Salesperson"/>
+                                <ComboBoxItem Content="Caixa" Tag="Cashier"/>
+                                <ComboBoxItem Content="Estoquista" Tag="Stockist"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Filtro por status -->
+                        <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,0,12,0">
+                            <TextBlock Text="Status" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="StatusFilterBox"
+                                      Width="150" 
+                                      SelectionChanged="StatusFilterBox_SelectionChanged">
+                                <ComboBoxItem Content="Todos" Tag="All" IsSelected="True"/>
+                                <ComboBoxItem Content="Ativos" Tag="Active"/>
+                                <ComboBoxItem Content="Inativos" Tag="Inactive"/>
+                                <ComboBoxItem Content="Bloqueados" Tag="Locked"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Ordenação -->
+                        <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Left">
+                            <TextBlock Text="Ordenar por" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="SortingComboBox" 
+                                      Width="150" 
+                                      SelectionChanged="SortingComboBox_SelectionChanged">
+                                <ComboBoxItem Content="Nome (A-Z)" Tag="NameAsc" IsSelected="True"/>
+                                <ComboBoxItem Content="Nome (Z-A)" Tag="NameDesc"/>
+                                <ComboBoxItem Content="Data de contratação (mais antigo)" Tag="HireDateAsc"/>
+                                <ComboBoxItem Content="Data de contratação (mais recente)" Tag="HireDateDesc"/>
+                                <ComboBoxItem Content="Cargo (Asc)" Tag="RoleAsc"/>
+                                <ComboBoxItem Content="Cargo (Desc)" Tag="RoleDesc"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
                 </Grid>
 
                 <!-- Lista de funcionários -->
-                <Grid Grid.Row="1">
-                    <!-- Lista com efeito de animação -->
-                    <ListView x:Name="EmployeesList" 
-                             SelectionMode="Single"
-                             IsItemClickEnabled="True"
-                             ItemTemplate="{StaticResource EmployeeCardTemplate}"
-                             ItemsSource="{x:Bind FilteredEmployees, Mode=OneWay}"
-                             SelectionChanged="EmployeesList_SelectionChanged"
-                             Margin="0,0,0,0"
-                             Padding="0,0,12,0">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                <Setter Property="Padding" Value="0"/>
-                                <Setter Property="Margin" Value="0,4"/>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                    </ListView>
+                <ListView x:Name="EmployeesList" 
+                         Grid.Row="2" 
+                         ItemsSource="{Binding FilteredEmployees}" 
+                         SelectionChanged="EmployeesList_SelectionChanged"
+                         ItemTemplate="{StaticResource ResponsiveEmployeeCardTemplate}"
+                         SelectionMode="Single" 
+                         IsItemClickEnabled="True"
+                         Margin="16,0,16,16"
+                         Padding="0">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="0,2" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
 
-                    <!-- Estados de carregamento e vazio -->
-                    <StackPanel HorizontalAlignment="Center" 
-                               VerticalAlignment="Center" 
-                               Visibility="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <ProgressRing IsActive="True" Width="40" Height="40" Margin="0,0,0,16"/>
-                        <TextBlock Text="Carregando funcionários..." 
-                                  Style="{StaticResource BodyTextBlockStyle}" 
-                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    </StackPanel>
+                    <!-- Estado vazio -->
+                    <ListView.Footer>
+                        <Grid Visibility="{Binding HasNoItems, Converter={StaticResource BoolToVisibilityConverter}}" 
+                             Height="300">
+                            <StackPanel VerticalAlignment="Center" 
+                                      HorizontalAlignment="Center" 
+                                      Spacing="12">
+                                <FontIcon Glyph="&#xE9CE;" 
+                                        FontSize="72" 
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                
+                                <TextBlock Text="Nenhum funcionário encontrado" 
+                                          Style="{StaticResource SubtitleTextBlockStyle}" 
+                                          HorizontalAlignment="Center"/>
+                                
+                                <TextBlock Text="Adicione um novo funcionário ou altere os filtros de busca" 
+                                          Style="{StaticResource BodyTextBlockStyle}" 
+                                          HorizontalAlignment="Center" 
+                                          TextWrapping="WrapWholeWords" 
+                                          TextAlignment="Center"/>
+                                
+                                <Button Content="Adicionar Funcionário" 
+                                       Style="{StaticResource AccentButtonStyle}" 
+                                       Click="AddEmployee_Click" 
+                                       Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </ListView.Footer>
+                </ListView>
+            </Grid>
 
-                    <!-- Estado vazio estilizado -->
-                    <StackPanel HorizontalAlignment="Center" 
-                               VerticalAlignment="Center"
-                               Spacing="16"
-                               Visibility="{x:Bind HasNoItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <!-- Adicionar um ícone ou ilustração animada aqui -->
-                        <FontIcon Glyph="&#xE9CE;" 
-                                 FontSize="48" 
-                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
-                                 HorizontalAlignment="Center"/>
+            <!-- Painel direito (Detalhes do funcionário) -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="Nenhum funcionário encontrado" 
-                                     Style="{StaticResource SubtitleTextBlockStyle}" 
-                                     HorizontalAlignment="Center"/>
+                <!-- Cabeçalho dos detalhes -->
+                <Grid Grid.Row="0" 
+                     Background="{ThemeResource NavigationViewTopPaneBackground}" 
+                     Padding="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="Tente ajustar os filtros de busca ou adicione novos funcionários" 
-                                     Style="{StaticResource BodyTextBlockStyle}" 
-                                     TextWrapping="WrapWholeWords"
-                                     TextAlignment="Center"
-                                     Margin="0,8,0,0"
-                                     MaxWidth="300"
+                    <StackPanel Grid.Column="0" 
+                               Orientation="Horizontal" 
+                               Spacing="12"
+                               Visibility="{Binding HasSelectedEmployee, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Viewbox Width="32" Height="32">
+                            <Border Background="{Binding SelectedEmployee.Role, Converter={StaticResource RoleToColorConverter}}" 
+                                   Width="32" Height="32" 
+                                   CornerRadius="16">
+                                <TextBlock Text="{Binding SelectedEmployee.Name, Converter={StaticResource NameToInitialsConverter}}" 
+                                          Foreground="White" 
+                                          FontWeight="SemiBold" 
+                                          HorizontalAlignment="Center" 
+                                          VerticalAlignment="Center"/>
+                            </Border>
+                        </Viewbox>
+
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding SelectedEmployee.Name}" 
+                                      Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            <TextBlock Text="{Binding SelectedEmployee.Position}" 
+                                     Style="{StaticResource CaptionTextBlockStyle}" 
                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
+                    </StackPanel>
 
-                        <Button x:Name="EmptyStateAddButton" 
-                               Style="{StaticResource PrimaryActionButtonStyle}"
-                               Click="AddEmployee_Click"
-                               HorizontalAlignment="Center">
+                    <StackPanel Grid.Column="0" 
+                               Orientation="Horizontal" 
+                               Spacing="12"
+                               Visibility="{Binding HasSelectedEmployee, Converter={StaticResource BoolToVisibilityInverseConverter}}">
+                        <FontIcon Glyph="&#xE716;" 
+                                 FontSize="24" 
+                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="Nenhum funcionário selecionado" 
+                                  Style="{StaticResource SubtitleTextBlockStyle}" 
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" 
+                               Orientation="Horizontal" 
+                               Spacing="8"
+                               Visibility="{Binding HasSelectedEmployee, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button Style="{StaticResource ResponsiveActionButtonStyle}" 
+                               Click="EditEmployee_Click" 
+                               ToolTipService.ToolTip="Editar Funcionário">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE710;" FontSize="16"/>
-                                <TextBlock Text="Adicionar Funcionário"/>
+                                <FontIcon Glyph="&#xE70F;" FontSize="16"/>
+                                <TextBlock Text="Editar" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource ResponsiveActionButtonStyle}" 
+                               Click="DeleteEmployee_Click" 
+                               ToolTipService.ToolTip="Excluir Funcionário">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+                                <TextBlock Text="Excluir" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
                 </Grid>
-            </Grid>
 
-            <!-- Separador vertical -->
-            <Rectangle Grid.Column="1" 
-                      Width="1" 
-                      Fill="{ThemeResource DividerStrokeColorDefaultBrush}" 
-                      Stretch="Fill"/>
-
-            <!-- Painel direito - Detalhes do funcionário -->
-            <Grid Grid.Column="2" Padding="0">
-                <!-- Estado sem seleção -->
-                <StackPanel x:Name="NoSelectionPanel" 
-                           HorizontalAlignment="Center" 
-                           VerticalAlignment="Center"
-                           Spacing="16"
-                           Visibility="{x:Bind HasSelectedEmployee, Mode=OneWay, Converter={StaticResource BoolToVisibilityInverseConverter}}">
-                    <FontIcon Glyph="&#xE77B;" 
-                             FontSize="48" 
-                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-
-                    <StackPanel>
-                        <TextBlock Text="Selecione um funcionário" 
-                                 Style="{StaticResource SubtitleTextBlockStyle}" 
-                                 HorizontalAlignment="Center"/>
-
-                        <TextBlock Text="Clique em um funcionário para ver detalhes" 
-                                 Style="{StaticResource BodyTextBlockStyle}" 
-                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                 TextAlignment="Center" 
-                                 Margin="0,8,0,0"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <!-- Detalhes do funcionário (Visível quando há seleção) -->
-                <Grid x:Name="EmployeeDetailsPanel" 
-                     Visibility="{x:Bind HasSelectedEmployee, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Cabeçalho de detalhes com foto/avatar -->
-                    <Grid Grid.Row="0" 
-                         Background="{ThemeResource LayerFillColorDefaultBrush}" 
-                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                         BorderThickness="0,0,0,1"
-                         Padding="24,20">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Avatar/Iniciais -->
-                        <Border Grid.Column="0" 
-                                Background="{x:Bind SelectedEmployee.Role, Mode=OneWay, Converter={StaticResource RoleToColorConverter}}" 
-                                Width="64" Height="64" 
-                                CornerRadius="32" 
-                                Margin="0,0,16,0" 
-                                VerticalAlignment="Center">
-                            <TextBlock Text="{x:Bind SelectedEmployee.Name, Mode=OneWay, Converter={StaticResource NameToInitialsConverter}}" 
-                                       Foreground="White" 
-                                       FontWeight="SemiBold"
-                                       FontSize="24"
-                                       HorizontalAlignment="Center" 
-                                       VerticalAlignment="Center"/>
-                        </Border>
-
-                        <!-- Info do funcionário -->
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="{x:Bind SelectedEmployee.Name, Mode=OneWay}" 
-                                      Style="{StaticResource TitleTextBlockStyle}"/>
-
-                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                                <Border Background="{x:Bind SelectedEmployee.Role, Mode=OneWay, Converter={StaticResource RoleToColorConverter}}" 
-                                       CornerRadius="4" 
-                                       Padding="8,4">
-                                    <TextBlock Text="{x:Bind SelectedEmployee.Role, Mode=OneWay}" 
-                                             Foreground="White"
-                                             FontWeight="SemiBold"
-                                             Style="{StaticResource CaptionTextBlockStyle}"/>
-                                </Border>
-
-                                <TextBlock Text="{x:Bind SelectedEmployee.Position, Mode=OneWay}" 
-                                         Style="{StaticResource BodyTextBlockStyle}" 
-                                         VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- Botões de ação -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                            <Button x:Name="EditSelectedButton" 
-                                   Style="{StaticResource ActionButtonStyle}"
-                                   Click="EditEmployee_Click"
-                                   ToolTipService.ToolTip="Editar">
-                                <FontIcon Glyph="&#xE70F;" FontSize="16"/>
-                            </Button>
-
-                            <Button x:Name="DeleteSelectedButton" 
-                                   Style="{StaticResource ActionButtonStyle}"
-                                   Click="DeleteEmployee_Click"
-                                   ToolTipService.ToolTip="Excluir">
-                                <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
-                            </Button>
+                <!-- Conteúdo dos detalhes -->
+                <Grid Grid.Row="1">
+                    <!-- Estado vazio -->
+                    <Grid Visibility="{Binding HasSelectedEmployee, Converter={StaticResource BoolToVisibilityInverseConverter}}">
+                        <StackPanel VerticalAlignment="Center" 
+                                   HorizontalAlignment="Center" 
+                                   Spacing="16">
+                            <FontIcon Glyph="&#xE77F;" 
+                                    FontSize="72" 
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            
+                            <TextBlock Text="Selecione um funcionário para visualizar detalhes" 
+                                      Style="{StaticResource SubtitleTextBlockStyle}" 
+                                      HorizontalAlignment="Center" 
+                                      TextAlignment="Center" 
+                                      TextWrapping="WrapWholeWords"/>
                         </StackPanel>
                     </Grid>
 
-                    <!-- Tabs de detalhes -->
-                    <muxc:TabView Grid.Row="1" 
-                                  x:Name="DetailsTabView" 
-                                  IsAddTabButtonVisible="False"
-                                  SelectedIndex="0">
-                        <muxc:TabView.TabItems>
-                            <muxc:TabViewItem Header="Dados" 
-                                            IsClosable="False">
-                                <ContentControl ContentTemplate="{StaticResource EmployeeDataTemplate}" 
-                                              Content="{x:Bind SelectedEmployee, Mode=OneWay}"/>
-                            </muxc:TabViewItem>
-
-                            <muxc:TabViewItem Header="Histórico de Atividade" 
-                                            IsClosable="False">
-                                <ContentControl ContentTemplate="{StaticResource EmployeeActivityTemplate}"
-                                              Content="{x:Bind SelectedEmployee, Mode=OneWay}"/>
-                            </muxc:TabViewItem>
-                        </muxc:TabView.TabItems>
-                    </muxc:TabView>
+                    <!-- Detalhes do funcionário -->
+                    <ScrollViewer Visibility="{Binding HasSelectedEmployee, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel Margin="16">
+                            <!-- Seção de dados pessoais -->
+                            <StackPanel>
+                                <TextBlock Text="Dados Pessoais" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,12"/>
+                                
+                                <Grid ColumnSpacing="24" RowSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <!-- Nome -->
+                                    <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
+                                        <TextBlock Text="Nome" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding SelectedEmployee.Name}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Email -->
+                                    <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
+                                        <TextBlock Text="E-mail" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding SelectedEmployee.Email}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Telefone -->
+                                    <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
+                                        <TextBlock Text="Telefone" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding SelectedEmployee.Phone}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Data de Nascimento -->
+                                    <StackPanel Grid.Column="1" Grid.Row="1" Spacing="4">
+                                        <TextBlock Text="Data de Nascimento" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding SelectedEmployee.BirthDate, Converter={StaticResource DateToFormattedStringConverter}}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Documento -->
+                                    <StackPanel Grid.Column="0" Grid.Row="2" Spacing="4">
+                                        <TextBlock Text="Documento (CPF)" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding SelectedEmployee.Document}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                            
+                            <!-- Separador -->
+                            <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="0,24,0,24"/>
+                            
+                            <!-- Seção de dados funcionais -->
+                            <StackPanel>
+                                <TextBlock Text="Dados Funcionais" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,12"/>
+                                
+                                <Grid ColumnSpacing="24" RowSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <!-- Cargo -->
+                                    <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
+                                        <TextBlock Text="Cargo" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Border Width="10" Height="10" CornerRadius="5" Background="{Binding SelectedEmployee.Role, Converter={StaticResource RoleToColorConverter}}"/>
+                                            <TextBlock Text="{Binding SelectedEmployee.Role}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    
+                                    <!-- Função -->
+                                    <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
+                                        <TextBlock Text="Função" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding SelectedEmployee.Position}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Código -->
+                                    <StackPanel Grid.Column="0" Grid.Row="1" Spacing="4">
+                                        <TextBlock Text="Código do Funcionário" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding SelectedEmployee.EmployeeCode}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Data de Admissão -->
+                                    <StackPanel Grid.Column="1" Grid.Row="1" Spacing="4">
+                                        <TextBlock Text="Data de Admissão" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding SelectedEmployee.HireDate, Converter={StaticResource DateToFormattedStringConverter}}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Status da Conta -->
+                                    <StackPanel Grid.Column="0" Grid.Row="2" Spacing="4">
+                                        <TextBlock Text="Status da Conta" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Ellipse Width="10" Height="10" Fill="{Binding SelectedEmployee.IsActive, Converter={StaticResource BoolToStatusBrushConverter}}"/>
+                                            <TextBlock Text="{Binding SelectedEmployee.IsActive, Converter={StaticResource BoolToActiveStatusConverter}}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </Grid>
         </Grid>
 
-        <!-- Sobreposição de comando global (opcional) -->
-        <TeachingTip x:Name="FeatureTip"
-                   Title="Novo recurso!"
-                   Subtitle="Agora você pode filtrar funcionários por status de atividade"
-                   PlacementMargin="20"
-                   PreferredPlacement="Bottom"
-                   IsLightDismissEnabled="True"
-                   Target="{x:Bind StatusFilterBox}"/>
+        <!-- Indicador de carregamento -->
+        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" 
+             Opacity="0.8" 
+             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressRing IsActive="{Binding IsLoading}" 
+                         Width="50" 
+                         Height="50"/>
+        </Grid>
+
+        <!-- Feature tip inicial -->
+        <muxc:TeachingTip x:Name="FeatureTip"
+                         Title="Gerenciamento de Funcionários"
+                         Subtitle="Gerencie facilmente todos os funcionários da sua empresa nesta página. Use os filtros para encontrar rapidamente quem você procura."
+                         PreferredPlacement="Bottom"
+                         IsLightDismissEnabled="True"
+                         ActionButtonContent="Iniciar"
+                         CloseButtonContent="Fechar"
+                         Target="{x:Bind HeaderTextBlock}"/>
     </Grid>
 </Page>

@@ -45,6 +45,23 @@ namespace PDV.UI.WinUI3.Services
         }
 
         /// <summary>
+        /// Exibe um diálogo de sucesso
+        /// </summary>
+        public static async Task ShowSuccessAsync(string title, string message, XamlRoot xamlRoot = null)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = message,
+                CloseButtonText = "OK",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = xamlRoot ?? App.MainWindow?.Content?.XamlRoot
+            };
+
+            await dialog.ShowAsync();
+        }
+
+        /// <summary>
         /// Exibe um diálogo de confirmação
         /// </summary>
         public static async Task<bool> ShowConfirmationAsync(string title, string message, string primaryButtonText = "Sim", string closeButtonText = "Não", XamlRoot xamlRoot = null)

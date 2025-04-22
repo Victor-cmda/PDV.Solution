@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Tamanhos de tela para adaptação responsiva -->
+    <x:Double x:Key="CompactModeThresholdWidth">641</x:Double>
+    <x:Double x:Key="MediumModeThresholdWidth">1008</x:Double>
+
+    <!-- Margens responsivas -->
+    <Thickness x:Key="ResponsiveMarginSmall">8</Thickness>
+    <Thickness x:Key="ResponsiveMarginMedium">16</Thickness>
+    <Thickness x:Key="ResponsiveMarginLarge">24</Thickness>
+
+    <!-- Tamanhos de fonte responsivos -->
+    <x:Double x:Key="ResponsiveFontSizeSmall">12</x:Double>
+    <x:Double x:Key="ResponsiveFontSizeMedium">14</x:Double>
+    <x:Double x:Key="ResponsiveFontSizeLarge">16</x:Double>
+    <x:Double x:Key="ResponsiveFontSizeHeader">20</x:Double>
+
+    <!-- Espaçamentos responsivos -->
+    <x:Double x:Key="ResponsiveSpacingSmall">4</x:Double>
+    <x:Double x:Key="ResponsiveSpacingMedium">8</x:Double>
+    <x:Double x:Key="ResponsiveSpacingLarge">16</x:Double>
+
+    <!-- Estilos de cartão responsivo -->
+    <Style x:Key="ResponsiveCardBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="16"/>
+    </Style>
+
+    <!-- Estilos de botões responsivos -->
+    <Style x:Key="ResponsiveActionButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{ThemeResource ControlFillColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="MinWidth" Value="0"/>
+    </Style>
+
+    <Style x:Key="ResponsivePrimaryActionButtonStyle" TargetType="Button" BasedOn="{StaticResource ResponsiveActionButtonStyle}">
+        <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+    </Style>
+
+    <!-- Estilos de texto responsivos -->
+    <Style x:Key="ResponsiveHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="{StaticResource ResponsiveFontSizeHeader}"/>
+    </Style>
+    
+    <Style x:Key="ResponsiveSubHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="{StaticResource ResponsiveFontSizeLarge}"/>
+    </Style>
+    
+    <Style x:Key="ResponsiveBodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource ResponsiveFontSizeMedium}"/>
+    </Style>
+    
+    <Style x:Key="ResponsiveCaptionTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource ResponsiveFontSizeSmall}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}"/>
+    </Style>
+</ResourceDictionary> 
