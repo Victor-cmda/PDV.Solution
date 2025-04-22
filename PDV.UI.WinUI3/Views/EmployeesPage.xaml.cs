@@ -4,8 +4,9 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using PDV.Domain.Entities;
 using PDV.Domain.Enums;
+using PDV.Domain.Interfaces;
 using PDV.UI.WinUI3.Services;
-using PDV.UI.WinUI3.Views.Forms;
+using PDV.Application.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -21,8 +22,10 @@ namespace PDV.UI.WinUI3.Views
         private Employee _selectedEmployee;
         private bool _isLoading;
         private string _sortOption = "NameAsc";
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly EmployeeService _employeeService;
 
-        // Propriedades observ·veis
+        // Propriedades observ√°veis
         public ObservableCollection<Employee> FilteredEmployees
         {
             get => _filteredEmployees;
@@ -61,7 +64,7 @@ namespace PDV.UI.WinUI3.Views
         public bool HasNoItems => !HasItems;
         public bool HasSelectedEmployee => SelectedEmployee != null;
 
-        // ImplementaÁ„o do INotifyPropertyChanged
+        // Implementa√ß√£o do INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(string propertyName)
         {
@@ -72,7 +75,12 @@ namespace PDV.UI.WinUI3.Views
         {
             this.InitializeComponent();
 
-            // Inicializar coleÁıes
+            // Obter servi√ßos
+            var app = Microsoft.UI.Xaml.Application.Current as App;
+            _unitOfWork = app?.Services.GetService(typeof(IUnitOfWork)) as IUnitOfWork;
+            _employeeService = app?.Services.GetService(typeof(EmployeeService)) as EmployeeService;
+
+            // Inicializar cole√ß√µes
             AllEmployees = new ObservableCollection<Employee>();
             FilteredEmployees = new ObservableCollection<Employee>();
 
@@ -85,7 +93,7 @@ namespace PDV.UI.WinUI3.Views
             // Mostrar dica de recursos (opcional)
             this.Loaded += (s, e) =>
             {
-                // Verificar se È a primeira vez que o usu·rio abre a p·gina
+                // Verificar se √© a primeira vez que o usu√°rio abre a p√°gina
                 if (AppSettings.GetValue<bool>("FirstTimeEmployeesPage", true))
                 {
                     FeatureTip.IsOpen = true;
@@ -96,14 +104,14 @@ namespace PDV.UI.WinUI3.Views
 
         private void SetupComboBoxes()
         {
-            // Configurar combobox de ordenaÁ„o
-            SortingComboBox.SelectedIndex = 0; // Nome (A-Z) por padr„o
+            // Configurar combobox de ordena√ß√£o
+            SortingComboBox.SelectedIndex = 0; // Nome (A-Z) por padr√£o
 
             // Configurar combobox de filtro de status
-            StatusFilterBox.SelectedIndex = 0; // Todos por padr„o
+            StatusFilterBox.SelectedIndex = 0; // Todos por padr√£o
 
             // Configurar combobox de filtro de cargo
-            FilterBox.SelectedIndex = 0; // Todos por padr„o
+            FilterBox.SelectedIndex = 0; // Todos por padr√£o
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -116,22 +124,27 @@ namespace PDV.UI.WinUI3.Views
 
                 if (existingEmployee != null)
                 {
-                    // Atualizar funcion·rio existente
+                    // Atualizar funcion√°rio existente
                     int index = AllEmployees.IndexOf(existingEmployee);
                     AllEmployees[index] = updatedEmployee;
                 }
                 else
                 {
-                    // Adicionar novo funcion·rio
+                    // Adicionar novo funcion√°rio
                     AllEmployees.Add(updatedEmployee);
                 }
 
                 // Aplicar filtros para atualizar a lista
                 ApplyFilters();
 
-                // Selecionar o funcion·rio atualizado ou adicionado
+                // Selecionar o funcion√°rio atualizado ou adicionado
                 EmployeesList.SelectedItem = updatedEmployee;
                 SelectedEmployee = updatedEmployee;
+            }
+            else
+            {
+                // Recarregar dados ao retornar para a p√°gina
+                LoadEmployeesAsync();
             }
         }
 
@@ -141,17 +154,22 @@ namespace PDV.UI.WinUI3.Views
             {
                 IsLoading = true;
 
-                // SimulaÁ„o de carga de dados assÌncrona
-                // Em um ambiente real, isso viria de um serviÁo
-                await Task.Delay(500);
+                // Limpar lista atual
+                AllEmployees.Clear();
 
-                // Carregar dados de exemplo para teste
-                LoadMockData();
+                // Carregar funcion√°rios do banco de dados
+                var employees = await _employeeService.GetAllEmployeesAsync();
+                
+                // Adicionar √† cole√ß√£o
+                foreach (var employee in employees)
+                {
+                    AllEmployees.Add(employee);
+                }
 
-                // Aplicar filtros e ordenaÁ„o iniciais
+                // Aplicar filtros e ordena√ß√£o iniciais
                 ApplyFilters();
 
-                // Selecionar o primeiro funcion·rio automaticamente (opcional)
+                // Selecionar o primeiro funcion√°rio automaticamente (opcional)
                 if (FilteredEmployees.Count > 0)
                 {
                     EmployeesList.SelectedIndex = 0;
@@ -161,7 +179,7 @@ namespace PDV.UI.WinUI3.Views
             catch (Exception ex)
             {
                 // Gerenciar erro
-                await DialogService.ShowErrorAsync("Erro ao carregar funcion·rios", ex.Message);
+                await DialogService.ShowErrorAsync("Erro ao carregar funcion√°rios", ex.Message);
             }
             finally
             {
@@ -169,124 +187,18 @@ namespace PDV.UI.WinUI3.Views
             }
         }
 
-        private void LoadMockData()
-        {
-            // Dados de exemplo expandidos para teste
-            AllEmployees.Clear();
-
-            AllEmployees.Add(new Employee
-            {
-                Id = Guid.NewGuid(),
-                Name = "Jo„o Silva",
-                Email = "joao.silva@empresa.com",
-                Phone = "(11) 98765-4321",
-                Role = UserRole.Admin,
-                Position = "Gerente Geral",
-                HireDate = DateTime.Now.AddYears(-2),
-                IsActive = true,
-                Username = "joao.silva",
-                EmployeeCode = "EMP001",
-                Permissions = new System.Collections.Generic.List<string> { "gerenciar_funcionarios", "gerenciar_produtos", "relatÛrios_financeiros" },
-                LastLoginDate = DateTime.Now.AddDays(-1)
-            });
-
-            AllEmployees.Add(new Employee
-            {
-                Id = Guid.NewGuid(),
-                Name = "Maria Oliveira",
-                Email = "maria.oliveira@empresa.com",
-                Phone = "(11) 91234-5678",
-                Role = UserRole.Cashier,
-                Position = "Caixa",
-                HireDate = DateTime.Now.AddMonths(-6),
-                IsActive = true,
-                Username = "maria.oliveira",
-                EmployeeCode = "EMP002",
-                Permissions = new System.Collections.Generic.List<string> { "vendas", "caixa" },
-                LastLoginDate = DateTime.Now.AddHours(-3)
-            });
-
-            AllEmployees.Add(new Employee
-            {
-                Id = Guid.NewGuid(),
-                Name = "Pedro Santos",
-                Email = "pedro.santos@empresa.com",
-                Phone = "(11) 99876-5432",
-                Role = UserRole.Salesperson,
-                Position = "Vendedor",
-                HireDate = DateTime.Now.AddMonths(-3),
-                IsActive = true,
-                Username = "pedro.santos",
-                EmployeeCode = "EMP003",
-                Permissions = new System.Collections.Generic.List<string> { "vendas", "consultar_produtos" },
-                LastLoginDate = DateTime.Now.AddHours(-12)
-            });
-
-            // Adicionar mais funcion·rios para testar a rolagem
-            AllEmployees.Add(new Employee
-            {
-                Id = Guid.NewGuid(),
-                Name = "Ana Ferreira",
-                Email = "ana.ferreira@empresa.com",
-                Phone = "(11) 93456-7890",
-                Role = UserRole.Manager,
-                Position = "Gerente de Vendas",
-                HireDate = DateTime.Now.AddMonths(-12),
-                IsActive = true,
-                Username = "ana.ferreira",
-                EmployeeCode = "EMP004",
-                Permissions = new System.Collections.Generic.List<string> { "gerenciar_vendas", "gerenciar_produtos", "relatÛrios_vendas" },
-                LastLoginDate = DateTime.Now.AddDays(-3)
-            });
-
-            AllEmployees.Add(new Employee
-            {
-                Id = Guid.NewGuid(),
-                Name = "Lucas Costa",
-                Email = "lucas.costa@empresa.com",
-                Phone = "(11) 95678-9012",
-                Role = UserRole.Stockist,
-                Position = "Estoquista",
-                HireDate = DateTime.Now.AddMonths(-9),
-                IsActive = false,
-                TerminationDate = DateTime.Now.AddDays(-15),
-                Username = "lucas.costa",
-                EmployeeCode = "EMP005",
-                Permissions = new System.Collections.Generic.List<string> { "gerenciar_estoque" },
-                LastLoginDate = DateTime.Now.AddDays(-20)
-            });
-
-            AllEmployees.Add(new Employee
-            {
-                Id = Guid.NewGuid(),
-                Name = "Juliana Almeida",
-                Email = "juliana.almeida@empresa.com",
-                Phone = "(11) 96789-0123",
-                Role = UserRole.Cashier,
-                Position = "Caixa",
-                HireDate = DateTime.Now.AddMonths(-2),
-                IsActive = true,
-                Username = "juliana.almeida",
-                EmployeeCode = "EMP006",
-                Permissions = new System.Collections.Generic.List<string> { "vendas", "caixa" },
-                LastLoginDate = DateTime.Now.AddHours(-6),
-                IsLocked = true,
-                FailedLoginAttempts = 3
-            });
-        }
-
         private void AddEmployee_Click(object sender, RoutedEventArgs e)
         {
-            // Navegar para a p·gina de formul·rio em modo de adiÁ„o
-            Frame.Navigate(typeof(EmployeeFormPage), null, new DrillInNavigationTransitionInfo());
+            // Navegar para a p√°gina de formul√°rio em modo de adi√ß√£o
+            Frame.Navigate(typeof(Forms.EmployeeFormPage), null, new DrillInNavigationTransitionInfo());
         }
 
         private void EditEmployee_Click(object sender, RoutedEventArgs e)
         {
             if (SelectedEmployee != null)
             {
-                // Navegar para a p·gina de formul·rio em modo de ediÁ„o
-                Frame.Navigate(typeof(EmployeeFormPage), SelectedEmployee, new DrillInNavigationTransitionInfo());
+                // Navegar para a p√°gina de formul√°rio em modo de edi√ß√£o
+                Frame.Navigate(typeof(Forms.EmployeeFormPage), SelectedEmployee, new DrillInNavigationTransitionInfo());
             }
         }
 
@@ -294,8 +206,8 @@ namespace PDV.UI.WinUI3.Views
         {
             if (sender is Button button && button.Tag is Employee employee)
             {
-                // Navegar para a p·gina de formul·rio em modo de ediÁ„o
-                Frame.Navigate(typeof(EmployeeFormPage), employee, new DrillInNavigationTransitionInfo());
+                // Navegar para a p√°gina de formul√°rio em modo de edi√ß√£o
+                Frame.Navigate(typeof(Forms.EmployeeFormPage), employee, new DrillInNavigationTransitionInfo());
             }
         }
 
@@ -319,8 +231,8 @@ namespace PDV.UI.WinUI3.Views
         {
             ContentDialog deleteDialog = new ContentDialog
             {
-                Title = "Confirmar exclus„o",
-                Content = $"Tem certeza que deseja excluir o funcion·rio '{employee.Name}'?",
+                Title = "Confirmar exclus√£o",
+                Content = $"Tem certeza que deseja excluir o funcion√°rio '{employee.Name}'?",
                 PrimaryButtonText = "Excluir",
                 CloseButtonText = "Cancelar",
                 DefaultButton = ContentDialogButton.Close,
@@ -330,19 +242,31 @@ namespace PDV.UI.WinUI3.Views
             var result = await deleteDialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
-                // Remover funcion·rio
-                AllEmployees.Remove(employee);
-                FilteredEmployees.Remove(employee);
-
-                // Atualizar seleÁ„o
-                if (SelectedEmployee == employee)
+                try
                 {
-                    SelectedEmployee = null;
-                }
+                    // Remover funcion√°rio do banco de dados
+                    await _unitOfWork.Employees.DeleteAsync(employee);
+                    await _unitOfWork.CompleteAsync();
+                    
+                    // Remover da UI
+                    AllEmployees.Remove(employee);
+                    FilteredEmployees.Remove(employee);
 
-                // Mostrar confirmaÁ„o
-                await DialogService.ShowInfoAsync("Funcion·rio excluÌdo",
-                    $"O funcion·rio {employee.Name} foi removido com sucesso.");
+                    // Atualizar sele√ß√£o
+                    if (SelectedEmployee == employee)
+                    {
+                        SelectedEmployee = null;
+                    }
+
+                    // Mostrar confirma√ß√£o
+                    await DialogService.ShowInfoAsync("Funcion√°rio exclu√≠do",
+                        $"O funcion√°rio {employee.Name} foi removido com sucesso.");
+                }
+                catch (Exception ex)
+                {
+                    await DialogService.ShowErrorAsync("Erro ao excluir", 
+                        $"N√£o foi poss√≠vel excluir o funcion√°rio: {ex.Message}");
+                }
             }
         }
 
@@ -386,48 +310,65 @@ namespace PDV.UI.WinUI3.Views
 
         private void ApplyFilters()
         {
-            var searchText = SearchBox.Text?.ToLower() ?? "";
-            var selectedRole = (FilterBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-            var selectedStatus = (StatusFilterBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            // Filtrar funcion√°rios com base nas op√ß√µes selecionadas
+            var query = AllEmployees.AsQueryable();
 
-            // Aplicar filtros
-            var query = AllEmployees.AsEnumerable();
-
-            // Filtrar por texto de busca
-            if (!string.IsNullOrEmpty(searchText))
+            // Aplicar filtro de busca por texto
+            if (!string.IsNullOrWhiteSpace(SearchBox.Text))
             {
-                query = query.Where(e =>
-                    e.Name?.ToLower().Contains(searchText) == true ||
-                    e.Email?.ToLower().Contains(searchText) == true ||
-                    e.Phone?.Contains(searchText) == true ||
-                    e.Position?.ToLower().Contains(searchText) == true ||
-                    e.EmployeeCode?.ToLower().Contains(searchText) == true);
+                string searchTerm = SearchBox.Text.ToLower();
+                query = query.Where(e => 
+                    e.Name.ToLower().Contains(searchTerm) || 
+                    e.Email.ToLower().Contains(searchTerm) || 
+                    e.Phone.ToLower().Contains(searchTerm));
             }
 
-            // Filtrar por cargo
-            if (!string.IsNullOrEmpty(selectedRole) && selectedRole != "Todos")
+            // Aplicar filtro de fun√ß√£o
+            if (FilterBox.SelectedIndex > 0)
             {
-                query = query.Where(e => e.Role.ToString() == selectedRole);
+                // Mapear os √≠ndices do ComboBox para os valores do enum UserRole
+                UserRole selectedRole = UserRole.Salesperson;  // Valor padr√£o
+
+                switch (FilterBox.SelectedIndex)
+                {
+                    case 1: // Vendedor
+                        selectedRole = UserRole.Salesperson;
+                        break;
+                    case 2: // Administrador
+                        selectedRole = UserRole.Admin;
+                        break;
+                    case 3: // Caixa
+                        selectedRole = UserRole.Cashier;
+                        break;
+                    case 4: // Gerente
+                        selectedRole = UserRole.Manager;
+                        break;
+                    case 5: // Estoquista
+                        selectedRole = UserRole.Stockist;
+                        break;
+                }
+
+                query = query.Where(e => e.Role == selectedRole);
             }
 
-            // Filtrar por status
-            if (!string.IsNullOrEmpty(selectedStatus) && selectedStatus != "Todos")
+            // Aplicar filtro de status
+            if (StatusFilterBox.SelectedIndex > 0)
             {
-                if (selectedStatus == "Ativos")
+                switch (StatusFilterBox.SelectedIndex)
                 {
-                    query = query.Where(e => e.IsActive);
-                }
-                else if (selectedStatus == "Inativos")
-                {
-                    query = query.Where(e => !e.IsActive);
-                }
-                else if (selectedStatus == "Bloqueados")
-                {
-                    query = query.Where(e => e.IsLocked);
+                    case 1: // Ativos
+                        query = query.Where(e => e.IsActive);
+                        break;
+                    case 2: // Inativos
+                        query = query.Where(e => !e.IsActive);
+                        break;
+                    case 3: // Bloqueados
+                        query = query.Where(e => e.IsLocked);
+                        break;
                 }
             }
 
-            // Aplicar ordenaÁ„o
+            // Aplicar ordena√ß√£o
             switch (_sortOption)
             {
                 case "NameAsc":
@@ -445,12 +386,9 @@ namespace PDV.UI.WinUI3.Views
                 case "Role":
                     query = query.OrderBy(e => e.Role).ThenBy(e => e.Name);
                     break;
-                default:
-                    query = query.OrderBy(e => e.Name);
-                    break;
             }
 
-            // Atualizar a lista filtrada com animaÁ„o
+            // Atualizar a lista filtrada com anima√ß√£o
             var newFilteredList = new ObservableCollection<Employee>(query);
             FilteredEmployees.Clear();
 

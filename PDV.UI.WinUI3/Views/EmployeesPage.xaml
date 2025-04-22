@@ -509,11 +509,11 @@
                          SelectionChanged="FilterBox_SelectionChanged"
                          Width="150">
                     <ComboBoxItem Content="Todos"/>
-                    <ComboBoxItem Content="Salesperson"/>
-                    <ComboBoxItem Content="Admin"/>
-                    <ComboBoxItem Content="Cashier"/>
-                    <ComboBoxItem Content="Manager"/>
-                    <ComboBoxItem Content="Stockist"/>
+                    <ComboBoxItem Content="Vendedor"/>
+                    <ComboBoxItem Content="Administrador"/>
+                    <ComboBoxItem Content="Caixa"/>
+                    <ComboBoxItem Content="Gerente"/>
+                    <ComboBoxItem Content="Estoquista"/>
                 </ComboBox>
             </StackPanel>
 

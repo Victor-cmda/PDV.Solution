@@ -79,6 +79,7 @@ namespace PDV.Application.Services
                     Position = dto.Position,
                     HireDate = dto.HireDate,
                     EmployeeCode = dto.EmployeeCode ?? GenerateEmployeeCode(),
+                    ResetPasswordToken = string.Empty,
 
                     // Valores padrão
                     IsActive = true,
